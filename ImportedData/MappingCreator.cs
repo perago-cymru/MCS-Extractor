@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using NpgsqlTypes;
 
 namespace MCS_Extractor.ImportedData
 {
@@ -12,6 +13,18 @@ namespace MCS_Extractor.ImportedData
     {
 
         private List<DataMappingType> mappings = new List<DataMappingType>();
+
+        private Dictionary<PGType, NpgsqlDbType> dbTypes = new Dictionary<PGType, NpgsqlDbType>
+        {
+            {PGType.Boolean, NpgsqlDbType.Boolean },
+            {PGType.String, NpgsqlDbType.Varchar },
+            {PGType.Date, NpgsqlDbType.Date },
+            {PGType.Int, NpgsqlDbType.Integer },
+            {PGType.Long, NpgsqlDbType.Bigint },
+            {PGType.Text, NpgsqlDbType.Text },
+            {PGType.Double, NpgsqlDbType.Double },
+            {PGType.Numeric, NpgsqlDbType.Numeric }
+        };
 
         public void AddMapping( string csvName, PGType type )
         {
@@ -23,7 +36,7 @@ namespace MCS_Extractor.ImportedData
             {
                 throw new Exception("A second field named " + csvName + " is being added!");
             }
-            DataMappingType newMapping = new DataMappingType(csvName, dbName, type);
+            DataMappingType newMapping = new DataMappingType(csvName, dbName, dbTypes[type]);
             mappings.Add(newMapping);
 
         }
@@ -41,6 +54,9 @@ namespace MCS_Extractor.ImportedData
             name = Regex.Replace(name, " ", replacement);
             return name;
         }
+
+        
+
 
     }
 

@@ -9,7 +9,7 @@ namespace MCS_Extractor.ImportedData
 {
     public class DataMapping<T> : DataMappingType
     {
-        public DataMapping(string csvField, string dbField, PGType type) : base(csvField, dbField, type)
+        public DataMapping(string csvField, string dbField, NpgsqlDbType type) : base(csvField, dbField, type)
         {
         }
 
@@ -24,5 +24,6 @@ namespace MCS_Extractor.ImportedData
         {
             return typeof(T).Name;
         }
+
     }
 }

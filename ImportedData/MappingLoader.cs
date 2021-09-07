@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Npgsql;
+using NpgsqlTypes;
 
 namespace MCS_Extractor.ImportedData
 {
@@ -18,14 +19,14 @@ namespace MCS_Extractor.ImportedData
         private NpgsqlConnection connection;
 
         private Dictionary<String, Func<string, string, DataMappingType>> typeLookup = new Dictionary<string, Func<string, string, DataMappingType>> {
-            { "boolean", (a, b) => new DataMapping<bool>(a, b, PGType.Boolean) },
-            { "string", (a, b) => new DataMapping<string>(a, b, PGType.String) },
-            { "int", (a, b) => new DataMapping<int>(a, b, PGType.Int) },
-            { "bigint", (a, b) => new DataMapping<long>(a, b, PGType.Long) },
-            { "text", (a, b) => new DataMapping<string>(a, b, PGType.Text) },
-            { "double", (a, b) => new DataMapping<double>(a, b, PGType.Double) },
-            { "numeric", (a, b) => new DataMapping<decimal>(a, b, PGType.Numeric) },
-            { "date", (a, b) => new DataMapping<DateTime>(a, b, PGType.Date) }
+            {  NpgsqlDbType.Boolean.ToString(), (a, b) => new DataMapping<bool>(a, b, NpgsqlDbType.Boolean) },
+            {  NpgsqlDbType.Varchar.ToString(), (a, b) => new DataMapping<string>(a, b, NpgsqlDbType.Varchar) },
+            { NpgsqlDbType.Integer.ToString(), (a, b) => new DataMapping<int>(a, b, NpgsqlDbType.Integer) },
+            {  NpgsqlDbType.Bigint.ToString(), (a, b) => new DataMapping<long>(a, b, NpgsqlDbType.Bigint) },
+            {  NpgsqlDbType.Text.ToString(), (a, b) => new DataMapping<string>(a, b, NpgsqlDbType.Text) },
+            { NpgsqlDbType.Double.ToString(), (a, b) => new DataMapping<decimal>(a, b, NpgsqlDbType.Numeric) },
+            { NpgsqlDbType.Numeric.ToString(), (a, b) => new DataMapping<decimal>(a, b, NpgsqlDbType.Numeric) },
+            { NpgsqlDbType.Date.ToString(), (a, b) => new DataMapping<DateTime>(a, b,NpgsqlDbType.Date) }
         };
 
 
@@ -46,7 +47,7 @@ namespace MCS_Extractor.ImportedData
                 int csvNameOrd = response.GetOrdinal("csv_name");
                 int dbNameOrd = response.GetOrdinal("db_name");
                 int typeNameOrd = response.GetOrdinal("type_name");
-                while ( response.NextResult() )
+                while ( response.Read() )
                 {
                     result.Add(typeLookup[response.GetString(typeNameOrd)](response.GetString(csvNameOrd), response.GetString(dbNameOrd)));
                 }
@@ -59,6 +60,7 @@ namespace MCS_Extractor.ImportedData
         {
             if (!TableExists(tableName))
             {
+                CreateTable(tableName, mappings);
                 InsertMappings(tableName, mappings);
             }
 
@@ -70,11 +72,18 @@ namespace MCS_Extractor.ImportedData
             var query = new StringBuilder("SELECT matches.table_name, count(distinct matches.id) as match_rows, count(distinct equivalent.id) as total_rows ");
             query.Append(" FROM csv_table_mappings matches  LEFT JOIN csv_table_mappings equivalent on matches.table_name = equivalent.table_name ");
             query.Append("WHERE matches.csv_name IN ( @p0");
-            for ( int i = 1; i< csvHeaders.Count; i++)
+          //  query.Append(csvHeaders[0]);
+          //  ( @p0");
+        for ( int i = 1; i< csvHeaders.Count; i++)
+        {
+            query.AppendFormat(", @p{0}", i);
+        } 
+          /*  for (int i = 1; i < csvHeaders.Count; i++)
             {
-                query.AppendFormat(", @p{0}", i);
-            }
-            query.Append(") GROUP BY matches.table_name");
+                query.Append("', '");
+                query.Append( csvHeaders[i]);
+            }*/
+            query.Append(" ) GROUP BY matches.table_name");
             connection.Open();
             var cmd = new NpgsqlCommand(query.ToString(), connection);
             for (int i = 0; i < csvHeaders.Count; i++)
@@ -83,9 +92,9 @@ namespace MCS_Extractor.ImportedData
             }
             var read = cmd.ExecuteReader();
             string result = "";
-            while (read.NextResult())
+            while (read.Read())
             {
-                if ( (int)read["match_rows"] == (int)read["total_rows"])
+                if ( Convert.ToInt32(read["match_rows"]) == Convert.ToInt32(read["total_rows"]))
                 {
                     result = (string) read["table_name"];
                 }
@@ -104,7 +113,22 @@ namespace MCS_Extractor.ImportedData
             return 0 < result;
         }
 
-
+        private void CreateTable(string tableName, List<DataMappingType> mappings)
+        {
+            var table = new StringBuilder("CREATE TABLE ");
+            table.AppendFormat("{0} ( ", tableName);
+            table.AppendLine("id SERIAL PRIMARY KEY");
+            foreach ( var map in mappings )
+            {
+                table.AppendFormat(", {0} {1}", map.DatabaseFieldName, map.GetFieldTypeName());
+            
+            }
+            table.Append(");");
+            connection.Open();
+            var cmd = new NpgsqlCommand(table.ToString(), connection);
+            cmd.ExecuteNonQuery();
+            connection.Close();
+        }
   
         private void InsertMappings(string tableName, List<DataMappingType> mappings )
         {
@@ -112,12 +136,15 @@ namespace MCS_Extractor.ImportedData
             var cmd = new NpgsqlCommand("INSERT INTO " + mappingTable + " (table_name, csv_name, db_name, type_name) VALUES ( @tn, @csv, @db, @tp )", connection);
             foreach( DataMappingType mp in mappings )
             {
+                cmd.Parameters.Clear();
                 cmd.Parameters.AddWithValue("tn", tableName);
                 cmd.Parameters.AddWithValue("csv", mp.CSVFieldName);
                 cmd.Parameters.AddWithValue("db", mp.DatabaseFieldName);
                 cmd.Parameters.AddWithValue("tp", mp.TypeName());
                 cmd.ExecuteNonQuery();
+
             }
+
             connection.Close();
         }
 
