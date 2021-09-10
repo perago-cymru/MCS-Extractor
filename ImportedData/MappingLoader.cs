@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -56,12 +57,17 @@ namespace MCS_Extractor.ImportedData
             return result;
         }
 
-        public void SaveMappings(string tableName, List<DataMappingType> mappings)
+        public void SaveMappings(TableSummary summary, List<DataMappingType> mappings)
         {
-            if (!TableExists(tableName))
+            if (!TableExists(summary.TableName))
             {
-                CreateTable(tableName, mappings);
-                InsertMappings(tableName, mappings);
+                connection.Open();
+                var tran = connection.BeginTransaction();
+                CreateTable(summary, mappings, false);
+                RunTemplateScript(summary, false);
+                InsertMappings(summary.TableName, mappings, false);
+                tran.Commit();
+                connection.Close();
             }
 
         }
@@ -113,26 +119,85 @@ namespace MCS_Extractor.ImportedData
             return 0 < result;
         }
 
-        private void CreateTable(string tableName, List<DataMappingType> mappings)
+        private void CreateTable(TableSummary summary, List<DataMappingType> mappings, bool openConnection = true)
         {
             var table = new StringBuilder("CREATE TABLE ");
-            table.AppendFormat("{0} ( ", tableName);
+            table.AppendFormat("{0} ( ", summary.TableName);
             table.AppendLine("id SERIAL PRIMARY KEY");
+         
             foreach ( var map in mappings )
             {
                 table.AppendFormat(", {0} {1}", map.DatabaseFieldName, map.GetFieldTypeName());
             
             }
+            if (  1 < summary.UserIdentifierFields.Length )
+            {
+                table.AppendFormat(", {0} VARCHAR(255)", summary.UserIdentifier);
+            }
             table.Append(");");
-            connection.Open();
+            if (openConnection)
+            {
+
+                connection.Open();
+            }
             var cmd = new NpgsqlCommand(table.ToString(), connection);
             cmd.ExecuteNonQuery();
-            connection.Close();
+            if (openConnection)
+            {
+                connection.Close();
+            }
+        }
+
+        private void RunTemplateScript(TableSummary summary, bool openConnection = true)
+        {
+            var reader = new StreamReader(CSVFileHandler.GetInstallFolder() + "\\sql\\template.sql");
+            var statement = reader.ReadToEnd();
+            reader.Close();
+
+            statement = statement.Replace("{$table}", summary.TableName);
+            statement = statement.Replace("{$start_date}", summary.StartField);
+            statement = statement.Replace("{$end_date}", summary.CloseField);
+            statement = statement.Replace("{$id}", "id");
+            statement = statement.Replace("{$identifier}", summary.UserIdentifier );
+            var command = new NpgsqlCommand(statement, connection);
+            if (openConnection)
+            {
+                connection.Open();
+            }
+            command.ExecuteNonQuery();
+            if (openConnection)
+            {
+                connection.Close();
+            }
+            SaveSummary(summary, openConnection);
+        }
+
+        private void SaveSummary(TableSummary summary, bool openConnection = true)
+        {
+            var command = new NpgsqlCommand("INSERT INTO csv_index_fields ( table_name, index_field, start_field, close_field, unique_identifier ) VALUES ( @tb, @idx, @start, @close, @unique )", connection);
+            if (openConnection)
+            {
+                connection.Open();
+            }
+            command.Parameters.AddWithValue("tb", summary.TableName);
+            command.Parameters.AddWithValue("idx", "id");
+            command.Parameters.AddWithValue("start", summary.StartField);
+            command.Parameters.AddWithValue("close", summary.CloseField);
+            command.Parameters.AddWithValue("unique", summary.UserIdentifier);
+            command.ExecuteNonQuery();
+            if (openConnection)
+            {
+                connection.Close();
+            }
+
         }
   
-        private void InsertMappings(string tableName, List<DataMappingType> mappings )
+        private void InsertMappings(string tableName, List<DataMappingType> mappings, bool openConnection = true)
         {
-            connection.Open();
+            if (openConnection)
+            {
+                connection.Open();
+            }
             var cmd = new NpgsqlCommand("INSERT INTO " + mappingTable + " (table_name, csv_name, db_name, type_name) VALUES ( @tn, @csv, @db, @tp )", connection);
             foreach( DataMappingType mp in mappings )
             {
@@ -144,8 +209,10 @@ namespace MCS_Extractor.ImportedData
                 cmd.ExecuteNonQuery();
 
             }
-
-            connection.Close();
+            if (openConnection)
+            {
+                connection.Close();
+            }
         }
 
 

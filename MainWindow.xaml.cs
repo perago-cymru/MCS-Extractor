@@ -67,8 +67,11 @@ namespace MCS_Extractor
                     }
                     //   MappingGrid.Columns[0].csMapping.Headers[i], Binding = new Binding(String.Format("[{0}]", i)) });
                     MappingGrid.Items.Add(m);
+                    StartField.Items.Add(m.RowName);
+                    EndField.Items.Add( m.RowName );
+                    FieldNames.Items.Add(m.RowName);
                 }
-
+                
 
             }
 
@@ -80,29 +83,88 @@ namespace MCS_Extractor
             string tableName = TableName.Text;
             if (0 < tableName.Length)
             {
-                tableName = MappingCreator.ClearSpacing(tableName);
-                MappingLoader ml = new MappingLoader();
-                if (!ml.TableExists(tableName))
+                if (ValidateSummaryFields())
                 {
-                    var creator = new MappingCreator();
-                    for (int i = 0; i < MappingGrid.Items.Count; i++)
-                    {
-                        MappingType row = (MappingType)MappingGrid.Items[i];
-                        creator.AddMapping(row.RowName, row.DataType);
-                    }
+                    tableName = MappingCreator.ClearSpacing(tableName);
 
-                    creator.SaveMappings(tableName);
-                }
-                else
+                    MappingLoader ml = new MappingLoader();
+                    if (!ml.TableExists(tableName))
+                    {
+                        var creator = new MappingCreator();
+                        var identifiers = new List<string>(IdentifierFields.Items.Count);
+                        foreach( var item in IdentifierFields.Items)
+                        {
+                            identifiers.Add(MappingCreator.ClearSpacing(item.ToString()));
+                        }
+                        creator.CreateSummary(tableName, 
+                            MappingCreator.ClearSpacing(StartField.SelectedValue.ToString()), 
+                            MappingCreator.ClearSpacing(EndField.SelectedValue.ToString()), identifiers.ToArray());
+
+                        for (int i = 0; i < MappingGrid.Items.Count; i++)
+                        {
+                            MappingType row = (MappingType)MappingGrid.Items[i];
+                            creator.AddMapping(row.RowName, row.DataType);
+                        }
+
+                        creator.SaveMappings(tableName);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Table already exists", String.Format("The table '{0}' already exists- please try a new name.", tableName));
+                    }
+                } else
                 {
-                    MessageBox.Show("Table already exists", String.Format("The table '{0}' already exists- please try a new name.", tableName));
+                    MessageBox.Show("Please select indexing properties.");
                 }
             }
             else
             {
-                MessageBox.Show("Empty table name", "Please enter a table name.");
+                MessageBox.Show("Please enter a table name.", "Empty table name");
             }
             
+        }
+
+        private bool ValidateSummaryFields()
+        {
+            var result = true;
+            if (StartField.SelectedIndex == 0)
+            {
+                StartField.BorderBrush = new SolidColorBrush(Colors.Red);
+                result = false;
+            }
+
+            if (EndField.SelectedIndex == 0)
+            {
+                EndField.BorderBrush = new SolidColorBrush(Colors.Red);
+                result = false;
+            }
+
+            if (IdentifierFields.Items.Count == 0)
+            {
+                IdentifierFields.BorderBrush = new SolidColorBrush(Colors.Red);
+                result = false;
+            }
+            return result;
+        }
+
+        private void FieldNames_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (0 < e.AddedItems.Count)
+            {
+                var selected = FieldNames.SelectedItem;
+                FieldNames.Items.RemoveAt(FieldNames.SelectedIndex);
+                IdentifierFields.Items.Add(selected);
+            }
+        }
+
+        private void IdentifierFields_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (0 < e.AddedItems.Count)
+            {
+                var selected = IdentifierFields.SelectedItem;
+                IdentifierFields.Items.RemoveAt(IdentifierFields.SelectedIndex);
+                FieldNames.Items.Add(selected);
+            }
         }
     }
 

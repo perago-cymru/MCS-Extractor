@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:MCS_Extractor"
         xmlns:imported="clr-namespace:MCS_Extractor.ImportedData"
         mc:Ignorable="d"
-        Title="My Council Services Data Extractor" Height="517" Width="637">
+        Title="My Council Services Data Extractor" Height="613" Width="637">
     <Window.Resources>
         <ObjectDataProvider x:Key="dataFromEnum" MethodName="GetValues"
                             ObjectType="{x:Type System:Enum}">
@@ -16,16 +16,16 @@
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
     </Window.Resources>
-    <Grid Margin="0,0,2,-21">
+    <Grid Margin="0,0,2,3">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="24*"/>
             <ColumnDefinition Width="23*"/>
         </Grid.ColumnDefinitions>
         <Button Content="Import" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
         <Label Name="ImportLabel" Content="Use 'Import' to import new files in the data folder." Margin="111,7,29,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-        <GroupBox Header="Mapping" Height="359" Margin="10,59,10,0" VerticalAlignment="Top" Grid.ColumnSpan="2">
+        <GroupBox Header="Mapping" Height="501" Margin="10,59,10,0" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <!-- https://docs.microsoft.com/en-us/dotnet/api/system.windows.controls.datagridtemplatecolumn?view=net-5.0 -->
-            <Grid Name="MappingBoxGrid">
+            <Grid Name="MappingBoxGrid" Margin="0,0,0,-2">
                 <Label Name="TitleLabel" VerticalAlignment="Top" HorizontalAlignment="Left">
                     Table:
                 </Label>
@@ -55,9 +55,17 @@
                         <DataGridTextColumn Header="Example 3" Binding="{Binding Example3}"></DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-                <Label Content="Label" Margin="5,0,105,9" VerticalAlignment="Bottom"  />
                 <Button Content="Create Table" Margin="0,0,5,12" VerticalAlignment="Bottom" HorizontalAlignment="Right" Click="ImportButton_Click" Width="95"/>
-
+                <ComboBox x:Name="StartField" HorizontalAlignment="Left" Margin="5,306,0,0" VerticalAlignment="Top" Width="189">
+                    <ComboBoxItem Name="startUnset" IsSelected="True">Start Date Field</ComboBoxItem>
+                </ComboBox>
+                <ComboBox x:Name="EndField" HorizontalAlignment="Left" Margin="210,306,0,0" VerticalAlignment="Top" Width="187"  >
+                    <ComboBoxItem Name="endUnset" IsSelected="True">End Date Field
+                    </ComboBoxItem>
+                </ComboBox>
+                <ListBox x:Name="FieldNames" HorizontalAlignment="Left" Margin="5,369,0,12" Width="189" SelectionChanged="FieldNames_SelectionChanged"/>
+                <ListBox x:Name="IdentifierFields" HorizontalAlignment="Left" Margin="210,369,0,12" Width="187" SelectionChanged="IdentifierFields_SelectionChanged"/>
+                <Label Content="Select a customer-identifying field-combination (ie first line of address and postcode )" HorizontalAlignment="Left" Margin="5,338,0,0" VerticalAlignment="Top" Width="580"/>
             </Grid>
         </GroupBox>
 

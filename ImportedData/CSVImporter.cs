@@ -102,8 +102,10 @@ namespace MCS_Extractor.ImportedData
                             }
                             importer.Complete();
                         }
+
                         conn.Close();
-                    
+                        SetUniqueField(tableName, conn);
+
                     } else
                     {
                         Debug.WriteLine("Cannot read from " + filename);
@@ -141,6 +143,33 @@ namespace MCS_Extractor.ImportedData
             }
             b.Append(") FROM STDIN (FORMAT BINARY) ");
             return b.ToString();
+        }
+
+        private void SetUniqueField(string tableName, NpgsqlConnection connection)
+        {
+            var summary = TableSummary.LoadFromDatabase(connection, tableName);
+            if ( 1 < summary.UserIdentifierFields.Length )
+            {
+                var query = new StringBuilder(String.Format("UPDATE {0} areq SET {1} =  ", tableName, summary.UserIdentifier));
+                var first = true;
+                foreach ( string field in summary.UserIdentifierFields )
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        query.Append(" || '-' || ");
+                    }
+                    query.AppendFormat("b.{0}", field);
+                }
+                query.AppendFormat(" FROM {0} b WHERE areq.id = b.id AND areq.{1} IS NULL", tableName, summary.UserIdentifier);
+                var command = new NpgsqlCommand(query.ToString(), connection);
+                connection.Open();
+                command.ExecuteNonQuery();
+                connection.Close();
+            }
         }
     
         private NpgsqlBinaryImporter ImportItem(NpgsqlBinaryImporter import, DataMappingType m, string fieldvalue)

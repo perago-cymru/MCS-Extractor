@@ -14,6 +14,8 @@ namespace MCS_Extractor.ImportedData
 
         private List<DataMappingType> mappings = new List<DataMappingType>();
 
+        private TableSummary summary = new TableSummary();
+
         private Dictionary<PGType, NpgsqlDbType> dbTypes = new Dictionary<PGType, NpgsqlDbType>
         {
             {PGType.Boolean, NpgsqlDbType.Boolean },
@@ -25,6 +27,17 @@ namespace MCS_Extractor.ImportedData
             {PGType.Double, NpgsqlDbType.Double },
             {PGType.Numeric, NpgsqlDbType.Numeric }
         };
+
+        public void CreateSummary(string tableName, string startField, string closeField, string[] identifierFields)
+        {
+            summary = new TableSummary()
+            {
+                TableName = tableName,
+                StartField = startField,
+                CloseField = closeField,
+                UserIdentifierFields = identifierFields
+            };
+        }
 
         public void AddMapping( string csvName, PGType type )
         {
@@ -44,7 +57,11 @@ namespace MCS_Extractor.ImportedData
         public void SaveMappings(string tableName)
         {
             var loader = new MappingLoader();
-            loader.SaveMappings(tableName, mappings);
+            if ( summary.TableName != tableName )
+            {
+                throw new Exception("Cannot save mappings without a table summary");
+            }
+            loader.SaveMappings(summary, mappings);
         }
 
         public static string ClearSpacing(string name, string replacement = "_")

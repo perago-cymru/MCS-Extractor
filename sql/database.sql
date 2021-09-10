@@ -1,5 +1,5 @@
 
-CREATE DATABASE "mcs_extracted_data"
+CREATE DATABASE "my_council_services_extract"
     WITH 
     OWNER = postgres
     ENCODING = 'UTF8'
@@ -91,7 +91,7 @@ begin
    CREATE TEMP TABLE outcome(recordId int, setId int, addrId varchar, submission Date, closeDate Date) on commit drop;
    setId := 1;
    queryText := FORMAT( 'SELECT req.'||uniqueField||' as addrId,
-    	req.submission,
+    	req.'||startField||',
 		req.'||closeField||',
 		req.'||idField||' AS "id",
 		neighbours.'||idField||' AS neighbour_id

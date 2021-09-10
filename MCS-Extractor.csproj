@@ -109,6 +109,7 @@
     <Compile Include="ImportedData\MappingCreator.cs" />
     <Compile Include="ImportedData\MappingLoader.cs" />
     <Compile Include="ImportedData\TableHandler.cs" />
+    <Compile Include="ImportedData\TableSummary.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -141,8 +142,12 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Sql\" />
+    <None Include="Sql\database.sql" />
+    <None Include="Sql\template.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
