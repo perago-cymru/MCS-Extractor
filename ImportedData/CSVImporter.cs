@@ -18,6 +18,8 @@ namespace MCS_Extractor.ImportedData
 
         private CSVSummary lastSummary = new CSVSummary();
 
+        public List<string> report = new List<string>();
+
         public bool ImportMapping(string fileName)
         {
     
@@ -28,9 +30,7 @@ namespace MCS_Extractor.ImportedData
             if ( !String.IsNullOrEmpty(table))
             {
                 ImportToTable(fileName, table);
-            } else
-            {
-                // generate Mappings.
+                result = true;
             }
             return result;
         }
@@ -75,43 +75,66 @@ namespace MCS_Extractor.ImportedData
 
         private void ImportToTable(string filename, string tableName)
         {
-
-            var loader = new MappingLoader();
-            var mappingSet = loader.GetMappings(tableName);
-            using (var reader = new StreamReader(filename))
+            if (!HasBeenRead(filename))
             {
-                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                var loader = new MappingLoader();
+                var mappingSet = loader.GetMappings(tableName);
+
+                using (var reader = new StreamReader(filename))
                 {
-                    if (csv.Read())
+                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                     {
-                        csv.ReadHeader();
-                        var header = csv.HeaderRecord;
-                        var conn = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
-                        conn.Open();
-                        using (var importer = conn.BeginBinaryImport(GetPgSQLCopyStatement(tableName, mappingSet)))
+                        if (csv.Read())
                         {
-                            while (csv.Read())
+                            csv.ReadHeader();
+                            var header = csv.HeaderRecord;
+                            var conn = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
+                            conn.Open();
+                            using (var importer = conn.BeginBinaryImport(GetPgSQLCopyStatement(tableName, mappingSet)))
                             {
-                                importer.StartRow();
-                                foreach (var map in mappingSet)
+                                while (csv.Read())
                                 {
-                                    string field = csv.GetField(map.CSVFieldName);
-                                    ImportItem(importer, map, field);
+                                    importer.StartRow();
+                                    foreach (var map in mappingSet)
+                                    {
+                                        string field = csv.GetField(map.CSVFieldName);
+                                        ImportItem(importer, map, field);
+                                    }
+
                                 }
-                    
+                                importer.Complete();
                             }
-                            importer.Complete();
+                            var command = new NpgsqlCommand("INSERT INTO loaded_files ( loaded, filename ) VALUES ( @loaded, @filename )", conn);
+                            command.Parameters.AddWithValue("loaded", DateTime.UtcNow);
+                            command.Parameters.AddWithValue("filename", filename);
+                            command.ExecuteNonQuery();
+                            conn.Close();
+                            SetUniqueField(tableName, conn);
+
                         }
-
-                        conn.Close();
-                        SetUniqueField(tableName, conn);
-
-                    } else
-                    {
-                        Debug.WriteLine("Cannot read from " + filename);
+                        else
+                        {
+                            Debug.WriteLine("Cannot read from " + filename);
+                        }
                     }
                 }
             }
+
+        }
+
+        private bool HasBeenRead(string filename)
+        {
+            var conn = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
+            var command = new NpgsqlCommand("SELECT count(id) FROM loaded_files WHERE filename = @filename", conn);
+            command.Parameters.AddWithValue("filename", filename);
+            conn.Open();
+            bool result = 0 < Convert.ToInt32(command.ExecuteScalar());
+            conn.Close();
+            if ( result )
+            {
+                report.Add(String.Format("File {0} has been imported previously.", filename));
+            }
+            return result;
 
         }
 
