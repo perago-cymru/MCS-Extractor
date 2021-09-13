@@ -29,11 +29,14 @@ namespace MCS_Extractor.ImportedData
 
         public List<PGType> Types { get; set; }
 
+        public bool Empty { get; set; }
+
         public CSVSummary()
         {
             this.Headers = new List<string>();
             this.Values = new List<List<string>>();
             this.Types = new List<PGType>();
+            this.Empty = true;
         }
 
         public List<PGType> EstimateTypes()

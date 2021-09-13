@@ -21,9 +21,9 @@
             <ColumnDefinition Width="24*"/>
             <ColumnDefinition Width="23*"/>
         </Grid.ColumnDefinitions>
-        <Button Content="Import" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
+        <Button Name="ImportButton" Content="Import" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="ImportButton_Click"/>
         <Label Name="ImportLabel" Content="Use 'Import' to import new files in the data folder." Margin="111,7,29,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-        <GroupBox Header="Mapping" Height="501" Margin="10,59,10,0" VerticalAlignment="Top" Grid.ColumnSpan="2">
+        <GroupBox x:Name="MappingContainer" Header="Mapping" Height="501" Margin="10,59,10,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Visibility="Collapsed">
             <!-- https://docs.microsoft.com/en-us/dotnet/api/system.windows.controls.datagridtemplatecolumn?view=net-5.0 -->
             <Grid Name="MappingBoxGrid" Margin="0,0,0,-2">
                 <Label Name="TitleLabel" VerticalAlignment="Top" HorizontalAlignment="Left">
@@ -55,7 +55,7 @@
                         <DataGridTextColumn Header="Example 3" Binding="{Binding Example3}"></DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-                <Button Content="Create Table" Margin="0,0,5,12" VerticalAlignment="Bottom" HorizontalAlignment="Right" Click="ImportButton_Click" Width="95"/>
+                <Button x:Name="CreateButton" Content="Create Table" Margin="0,0,5,12" VerticalAlignment="Bottom" HorizontalAlignment="Right" Click="CreateButton_Click" Width="95"/>
                 <ComboBox x:Name="StartField" HorizontalAlignment="Left" Margin="5,306,0,0" VerticalAlignment="Top" Width="189">
                     <ComboBoxItem Name="startUnset" IsSelected="True">Start Date Field</ComboBoxItem>
                 </ComboBox>
@@ -68,6 +68,8 @@
                 <Label Content="Select a customer-identifying field-combination (ie first line of address and postcode )" HorizontalAlignment="Left" Margin="5,338,0,0" VerticalAlignment="Top" Width="580"/>
             </Grid>
         </GroupBox>
+        <ListBox Name="ImportList" Margin="10,38,16,10" Grid.ColumnSpan="2"/>
+
 
     </Grid>
 </Window>

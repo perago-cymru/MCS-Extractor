@@ -22,15 +22,19 @@ namespace MCS_Extractor.ImportedData
 
         public bool ImportMapping(string fileName)
         {
-    
+
             var summary = SummariseCSV(fileName);
-            var loader = new MappingLoader();
-            var table = loader.FindTableByHeaders(summary.Headers);
             var result = false;
-            if ( !String.IsNullOrEmpty(table))
+            if (!summary.Empty)
             {
-                ImportToTable(fileName, table);
-                result = true;
+                var loader = new MappingLoader();
+                var table = loader.FindTableByHeaders(summary.Headers);
+
+                if (!String.IsNullOrEmpty(table))
+                {
+                    ImportToTable(fileName, table);
+                    result = true;
+                }
             }
             return result;
         }
@@ -49,22 +53,31 @@ namespace MCS_Extractor.ImportedData
              //   Path.Combine(CSVFileHandler.GetInstallFolder(), ConfigurationManager.AppSettings["DataDirectory"]);
                 using (var reader = new StreamReader(fileName))
                 {
-                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                    try
                     {
-                        csv.Read();
-                        csv.ReadHeader();
-                        result.Headers.AddRange(csv.HeaderRecord);
-                        int count = 0;
-                        while (csv.Read() && count < 50)
+                        using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                         {
-                            var ls = new List<string>();
-                            foreach (string head in csv.HeaderRecord)
+                            csv.Read();
+                            csv.ReadHeader();
+                            result.Headers.AddRange(csv.HeaderRecord);
+                            int count = 0;
+                            while (csv.Read() && count < 50)
                             {
-                                ls.Add(csv.GetField(head));
+                                var ls = new List<string>();
+                                foreach (string head in csv.HeaderRecord)
+                                {
+                                    ls.Add(csv.GetField(head));
 
+                                }
+                                result.Values.Add(ls);
                             }
-                            result.Values.Add(ls);
+                            result.Empty = false;
                         }
+                    } catch ( Exception ef )
+                    {
+                        Debug.WriteLine("Exception loading " + fileName + ": " + ef.Message);
+                        Debug.Write(ef.StackTrace);
+                        result.Empty = true;
                     }
                 }
 
@@ -90,25 +103,38 @@ namespace MCS_Extractor.ImportedData
                             var header = csv.HeaderRecord;
                             var conn = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
                             conn.Open();
-                            using (var importer = conn.BeginBinaryImport(GetPgSQLCopyStatement(tableName, mappingSet)))
+                            try
                             {
-                                while (csv.Read())
+                                using (var importer = conn.BeginBinaryImport(GetPgSQLCopyStatement(tableName, mappingSet)))
                                 {
-                                    importer.StartRow();
-                                    foreach (var map in mappingSet)
+                                    while (csv.Read())
                                     {
-                                        string field = csv.GetField(map.CSVFieldName);
-                                        ImportItem(importer, map, field);
-                                    }
+                                        importer.StartRow();
+                                        foreach (var map in mappingSet)
+                                        {
+                                            string field = csv.GetField(map.CSVFieldName);
+                                            ImportItem(importer, map, field);
+                                        }
 
+                                    }
+                                    importer.Complete();
                                 }
-                                importer.Complete();
+                                var command = new NpgsqlCommand("INSERT INTO loaded_files ( loaded, filename ) VALUES ( @loaded, @filename )", conn);
+                                command.Parameters.AddWithValue("loaded", DateTime.UtcNow);
+                                command.Parameters.AddWithValue("filename", filename);
+                                command.ExecuteNonQuery();
+
                             }
-                            var command = new NpgsqlCommand("INSERT INTO loaded_files ( loaded, filename ) VALUES ( @loaded, @filename )", conn);
-                            command.Parameters.AddWithValue("loaded", DateTime.UtcNow);
-                            command.Parameters.AddWithValue("filename", filename);
-                            command.ExecuteNonQuery();
-                            conn.Close();
+                            catch (PostgresException ex)
+                            {
+                                Debug.WriteLine("Exception: " + ex.Message);
+                                Debug.Write("Location: " + ex.Where);
+                                throw ex;
+                            }
+                            finally
+                            {
+                                conn.Close();
+                            }
                             SetUniqueField(tableName, conn);
 
                         }
@@ -197,8 +223,8 @@ namespace MCS_Extractor.ImportedData
     
         private NpgsqlBinaryImporter ImportItem(NpgsqlBinaryImporter import, DataMappingType m, string fieldvalue)
         {
-            if (fieldvalue == null)
-            {
+            if (String.IsNullOrEmpty(fieldvalue))
+            { 
                 import.WriteNull();
             }
             else

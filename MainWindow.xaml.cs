@@ -26,6 +26,7 @@ namespace MCS_Extractor
 
         private CSVFileHandler csvHandler;
 
+
         public MainWindow()
         {
             importer = new CSVImporter();
@@ -33,60 +34,26 @@ namespace MCS_Extractor
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void ImportButton_Click(object sender, RoutedEventArgs e)
         {
-            var files = csvHandler.GetFileList();
-            if (0 < files.Count)
+            ImportButton.IsEnabled = false;
+            ImportLabel.Content = "Importing...";
+            ImportList.Items.Clear();
+            await Task.Run(() =>
             {
-                if (importer.ImportMapping(files[0]))
-                {
-                    ImportLabel.Content = "Successfully imported " + files[0];
-                }
-                else
-                {
-                    ImportLabel.Content = "Could not find mapping for " + files[0];
-                    var csMapping = importer.SummariseCSV(files[0]);
-                    var typeList = csMapping.EstimateTypes();
+                var files = csvHandler.GetFileList();
 
-                    var ls = new List<MappingType>();
-                    for (int i = 0; i < csMapping.Headers.Count; i++)
-                    {
-                        MappingType m = new MappingType();
-                        m.RowName = csMapping.Headers[i];
-                        m.DataType = typeList[i];
-                        if (0 < csMapping.Values.Count)
-                        {
-                            m.Example1 = csMapping.Values[0][i];
-                        }
-                        if (0 < csMapping.Values.Count)
-                        {
-                            m.Example2 = csMapping.Values[1][i];
-                        }
-                        if (0 < csMapping.Values.Count)
-                        {
-                            m.Example3 = csMapping.Values[2][i];
-                        }
-                        //   MappingGrid.Columns[0].csMapping.Headers[i], Binding = new Binding(String.Format("[{0}]", i)) });
-                        MappingGrid.Items.Add(m);
-                        StartField.Items.Add(m.RowName);
-                        EndField.Items.Add(m.RowName);
-                        FieldNames.Items.Add(m.RowName);
-                    }
-
-
-                }
-            }
-            else
-            {
-                ImportLabel.Content = "No new files to import.";
-
-            }
+                ProcessFiles(files);
+            });
+            ImportLabel.Content = "Import complete, " + ImportList.Items.Count + " files imported.";
+            ImportButton.IsEnabled = true;
 
 
         }
 
-        private void ImportButton_Click(object sender, RoutedEventArgs e)
+        private void CreateButton_Click(object sender, RoutedEventArgs e)
         {
+
             string tableName = TableName.Text;
             if (0 < tableName.Length)
             {
@@ -99,12 +66,12 @@ namespace MCS_Extractor
                     {
                         var creator = new MappingCreator();
                         var identifiers = new List<string>(IdentifierFields.Items.Count);
-                        foreach( var item in IdentifierFields.Items)
+                        foreach (var item in IdentifierFields.Items)
                         {
                             identifiers.Add(MappingCreator.ClearSpacing(item.ToString()));
                         }
-                        creator.CreateSummary(tableName, 
-                            MappingCreator.ClearSpacing(StartField.SelectedValue.ToString()), 
+                        creator.CreateSummary(tableName,
+                            MappingCreator.ClearSpacing(StartField.SelectedValue.ToString()),
                             MappingCreator.ClearSpacing(EndField.SelectedValue.ToString()), identifiers.ToArray());
 
                         for (int i = 0; i < MappingGrid.Items.Count; i++)
@@ -114,6 +81,12 @@ namespace MCS_Extractor
                         }
 
                         creator.SaveMappings(tableName);
+                        MappingContainer.Visibility = Visibility.Collapsed;
+                        ImportList.Visibility = Visibility.Visible;
+                        var files = csvHandler.GetFileList();
+
+                        ProcessFiles(files);
+
                     }
                     else
                     {
@@ -128,7 +101,7 @@ namespace MCS_Extractor
             {
                 MessageBox.Show("Please enter a table name.", "Empty table name");
             }
-            
+
         }
 
         private bool ValidateSummaryFields()
@@ -173,6 +146,74 @@ namespace MCS_Extractor
                 FieldNames.Items.Add(selected);
             }
         }
+
+        private void ProcessFiles(List<string> files)
+        {
+            if (0 < files.Count)
+            {
+                for (int fn = 0; fn < files.Count; fn++)
+                {
+                    if (importer.ImportMapping(files[fn]))
+                    {
+                        // ImportLabel.Content = "Successfully imported " + files[fn];
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            ImportList.Items.Add(files[fn]);
+                        });
+                    }
+                    else
+                    {
+                        ShowMappingForm(files[fn]);
+                        break;
+
+                    }
+                }
+            }
+            else
+            {
+                ImportLabel.Content = "No new files to import.";
+
+            }
+
+        }
+
+        private async void ShowMappingForm(string fileName)
+        {
+            ImportLabel.Content = "Could not find mapping for " + fileName;
+            ImportList.Visibility = Visibility.Collapsed;
+            MappingContainer.Visibility = Visibility.Visible;
+            var csMapping = importer.SummariseCSV(fileName);
+            if (!csMapping.Empty)
+            {
+                var typeList = csMapping.EstimateTypes();
+
+                var ls = new List<MappingType>();
+                for (int i = 0; i < csMapping.Headers.Count; i++)
+                {
+                    MappingType m = new MappingType();
+                    m.RowName = csMapping.Headers[i];
+                    m.DataType = typeList[i];
+                    if (0 < csMapping.Values.Count)
+                    {
+                        m.Example1 = csMapping.Values[0][i];
+                    }
+                    if (0 < csMapping.Values.Count)
+                    {
+                        m.Example2 = csMapping.Values[1][i];
+                    }
+                    if (0 < csMapping.Values.Count)
+                    {
+                        m.Example3 = csMapping.Values[2][i];
+                    }
+                    //   MappingGrid.Columns[0].csMapping.Headers[i], Binding = new Binding(String.Format("[{0}]", i)) });
+                    MappingGrid.Items.Add(m);
+                    StartField.Items.Add(m.RowName);
+                    EndField.Items.Add(m.RowName);
+                    FieldNames.Items.Add(m.RowName);
+                }
+            }
+        }
+        
     }
 
 
