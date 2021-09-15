@@ -39,12 +39,7 @@ namespace MCS_Extractor
             ImportButton.IsEnabled = false;
             ImportLabel.Content = "Importing...";
             ImportList.Items.Clear();
-            await Task.Run(() =>
-            {
-                var files = csvHandler.GetFileList();
-
-                ProcessFiles(files);
-            });
+             ImportFiles();
             ImportLabel.Content = "Import complete, " + ImportList.Items.Count + " files imported.";
             ImportButton.IsEnabled = true;
 
@@ -83,9 +78,7 @@ namespace MCS_Extractor
                         creator.SaveMappings(tableName);
                         MappingContainer.Visibility = Visibility.Collapsed;
                         ImportList.Visibility = Visibility.Visible;
-                        var files = csvHandler.GetFileList();
-
-                        ProcessFiles(files);
+                        ImportFiles();
 
                     }
                     else
@@ -147,6 +140,25 @@ namespace MCS_Extractor
             }
         }
 
+        private async void ImportFiles()
+        {
+            await Task.Run(() =>
+            {
+                var files = csvHandler.GetFileList();
+                try
+                {
+                    ProcessFiles(files);
+                }
+                catch (Npgsql.PostgresException ex)
+                {
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        MessageBox.Show("Import error: " + ex.Message + Environment.NewLine + "Location: " + ex.Where);
+                    });
+                }
+            });
+        }
+
         private void ProcessFiles(List<string> files)
         {
             if (0 < files.Count)
@@ -163,7 +175,10 @@ namespace MCS_Extractor
                     }
                     else
                     {
-                        ShowMappingForm(files[fn]);
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            ShowMappingForm(files[fn]);
+                        });
                         break;
 
                     }
