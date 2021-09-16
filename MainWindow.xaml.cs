@@ -34,7 +34,7 @@ namespace MCS_Extractor
             InitializeComponent();
         }
 
-        private async void ImportButton_Click(object sender, RoutedEventArgs e)
+        private void ImportButton_Click(object sender, RoutedEventArgs e)
         {
             ImportButton.IsEnabled = false;
             ImportLabel.Content = "Importing...";
@@ -42,7 +42,6 @@ namespace MCS_Extractor
              ImportFiles();
             ImportLabel.Content = "Import complete, " + ImportList.Items.Count + " files imported.";
             ImportButton.IsEnabled = true;
-
 
         }
 
@@ -192,7 +191,7 @@ namespace MCS_Extractor
 
         }
 
-        private async void ShowMappingForm(string fileName)
+        private void ShowMappingForm(string fileName)
         {
             ImportLabel.Content = "Could not find mapping for " + fileName;
             ImportList.Visibility = Visibility.Collapsed;
