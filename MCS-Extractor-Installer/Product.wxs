@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util='http://schemas.microsoft.com/wix/UtilExtension'
+     xmlns:ui='http://schemas.microsoft.com/wix/UIExtension'>
+	<Product Id="755303bf-ad0e-47bd-b32e-51ddb8ff7dad" Name="MCS_Extractor_Installer" 
+           Language="1033" Version="0.9.0.0" Manufacturer="Perago-Wales"
+           UpgradeCode="759fdfe9-5cc7-46f4-9e59-15805e3f8f64">
+  
+		<Package 
+        Id="*" Description="Installer package for the My Council Services Extractor tool"
+        InstallerVersion="200" Compressed="yes" InstallScope="perMachine" 
+             />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of MCS Extractor is already installed." />
+		<MediaTemplate />
+
+		<Feature Id="ProductFeature" Title="MCS_Extractor_Installer" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+      <ComponentGroupRef Id="SQLComponents" />
+		</Feature>
+  
+    <Property Id="POSTGRESUSERNAME" Value="postgres" />
+    <Property Id="POSTGRESPASSWORD" Secure="yes" Value=" " />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <Property Id="SQLPATH">$(var.MCS-Extractor.ProjectDir)\Sql\database.sql</Property>
+    <Property Id="MsiLogging" Value="v" />
+
+
+  
+
+	</Product>
+  
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="MCS Extractor" >
+          <Directory Id="DownloadFolder" Name="Downloaded" />
+          <Directory Id="SQLFolder" Name="Sql" />
+        </Directory>
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+			<Component Id="ProductComponent">
+        <File Id="MCSExtractorExe" Name="MCS_Extractor.exe" DiskId="1" Source="$(var.MCS-Extractor.TargetPath)" KeyPath="yes" />
+			</Component>
+		</ComponentGroup>
+    <ComponentGroup Id="SQLComponents" Directory="SQLFolder" >
+       <Component Id="TemplateSQLComponent" Guid="666eb58a-018d-4ca2-bf55-24c4dd4edc40" >
+        <File Id="TemplateSQL" Name="template.sql" DiskId="1" Source="$(var.MCS-Extractor.ProjectDir)\Sql\template.sql" KeyPath="no" />
+       </Component>
+         <Component Id="DatabaseSQLComponent" Guid="678bd34f-4364-41e4-aa71-0dea0d6e00f1" >
+        <File Id="DatabaseSQL" Name="database.sql" DiskId="1" Source="$(var.MCS-Extractor.ProjectDir)\Sql\database.sql" KeyPath="no" />
+      </Component>
+    </ComponentGroup>
+	</Fragment>
+
+
+</Wix>

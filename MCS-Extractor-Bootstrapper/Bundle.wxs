@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  
+  <Bundle Name="MCS_Extractor_Bootstrapper" Version="1.0.0.0" Manufacturer="" UpgradeCode="9d165ae8-303f-4887-b045-100470ed3b04">
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" />
+<!--    <Property Id="PostgresInstalled">0</Property>
+    <Property Id="PGODBCInstalled">0</Property>
+    <CustomAction Id="CheckOdpNet" BinaryKey="WiXCustomAction.dll" DllEntry="CheckOdpNetInstalled" Execute="immediate" /> -->
+    <util:RegistrySearch Variable="PGPresent-12" Root="HKLM" Key="SOFTWARE\postgresql-x64-12" Value="Version" />
+    <util:RegistrySearch Variable="PGPresent-13" Root="HKLM" Key="SOFTWARE\postgresql-x64-13" Value="Version" />
+    <util:RegistrySearch Variable="PGPresent-14" Root="HKLM" Key="SOFTWARE\postgresql-x64-14" Value="Version" />
+    <util:RegistrySearch Variable="ODBCDriver" Root="HKLM" Key="SOFTWARE\psqlODBC_x64" Value="Version"/>
+    <Chain>
+      <PackageGroupRef Id="NetFx462Redist"/>
+      <ExePackage Id="PostgreSQL-13.4" 
+                  DisplayName="Postgres Database Server"
+                  SourceFile="postgres-13.4-1-windows-x64.exe" 
+                  DetectCondition="(NOT PGPresent-12) AND (NOT PGPresent-13) AND (NOT PGPresent-14)"
+                  />
+      <ExePackage Id="PGODBC-Connector" 
+                  DisplayName="Postgres ODBC Connector"
+                  SourceFile="psqlodbc-setup.exe"
+                  DetectCondition="NOT ODBCDriver"/>
+      <MsiPackage Id="MCS-Extractor"
+                  DisplayName="My Council Services Extractor"
+                  SourceFile="$(var.MCS-Extractor-Installer.TargetPath)" />
+    </Chain>
+  </Bundle>
+</Wix>
