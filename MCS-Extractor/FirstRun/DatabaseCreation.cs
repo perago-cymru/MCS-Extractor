@@ -13,8 +13,6 @@ namespace MCS_Extractor.FirstRun
     {
         private string connectionString;
 
-        private NpgsqlConnection connection;
-
         public List<string> Log { get; set; }
 
         public DatabaseCreation(string connectionString)
