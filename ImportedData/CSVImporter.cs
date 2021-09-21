@@ -86,6 +86,12 @@ namespace MCS_Extractor.ImportedData
             return result;
         }
 
+        public static NpgsqlConnection GetConnection()
+        {
+            var connectionString = String.Format("{0}Database={1}", ConfigurationManager.AppSettings["ConnectionString"], ConfigurationManager.AppSettings["ConnectionString"]);
+            return new NpgsqlConnection(connectionString);
+        }
+
         private void ImportToTable(string filename, string tableName)
         {
             if (!HasBeenRead(filename))
@@ -101,7 +107,7 @@ namespace MCS_Extractor.ImportedData
                         {
                             csv.ReadHeader();
                             var header = csv.HeaderRecord;
-                            var conn = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
+                            var conn = GetConnection();
                             conn.Open();
                             try
                             {
@@ -150,7 +156,7 @@ namespace MCS_Extractor.ImportedData
 
         private bool HasBeenRead(string filename)
         {
-            var conn = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
+            var conn = GetConnection();
             var command = new NpgsqlCommand("SELECT count(id) FROM loaded_files WHERE filename = @filename", conn);
             command.Parameters.AddWithValue("filename", filename);
             conn.Open();

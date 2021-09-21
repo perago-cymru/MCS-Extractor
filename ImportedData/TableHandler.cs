@@ -19,7 +19,7 @@ namespace MCS_Extractor.ImportedData
         public TableHandler(string tableName)
         {
             this.tableName = tableName;
-            connection = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
+            connection = CSVImporter.GetConnection();
         }
 
         public bool TableExists()

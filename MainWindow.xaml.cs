@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MCS_Extractor.ImportedData;
+using MCS_Extractor.FirstRun;
 
 namespace MCS_Extractor
 {
@@ -31,6 +32,7 @@ namespace MCS_Extractor
         {
             importer = new CSVImporter();
             csvHandler = new CSVFileHandler();
+          
             InitializeComponent();
         }
 

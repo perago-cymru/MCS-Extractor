@@ -1,15 +1,4 @@
 
-CREATE DATABASE "my_council_services_extract"
-    WITH 
-    OWNER = postgres
-    ENCODING = 'UTF8'
-    LC_COLLATE = 'C'
-    LC_CTYPE = 'C'
-    TABLESPACE = pg_default
-    CONNECTION LIMIT = -1;
-
-USE mcs_extracted_data;
-
 CREATE OR REPLACE FUNCTION public.fiscal_quarter(dt timestamp without time zone)
     RETURNS character varying
     LANGUAGE 'plpgsql'

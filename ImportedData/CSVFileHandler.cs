@@ -34,7 +34,7 @@ namespace MCS_Extractor.ImportedData
 
         private bool FileLoaded(string filename)
         {
-            var conn = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
+            var conn = CSVImporter.GetConnection(); 
             conn.Open();
             var cmd = new NpgsqlCommand("SELECT 0 < count(id) FROM loaded_files WHERE filename = @name ", conn);
             cmd.Parameters.AddWithValue("name", filename);
