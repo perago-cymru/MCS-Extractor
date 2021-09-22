@@ -1,8 +1,8 @@
-*The MCS Data Extractor*
+# The MCS Data Extractor
 
 This tool is designed to facilitate importing data exported in CSV format from the MyCouncilServices platform. The tool is built to be a lightweight shell to import CSV data into PostgreSQL. It maintains itself through configuration, largely stored in the database.
 
-** Installation **
+## Installation 
 
 The MCS Data Extractor has the following pre-requisites:
 
@@ -16,7 +16,7 @@ On the first run the tool will request the username and password for your Postgr
 
 Having created the database, the tool creates an ODBC connection to facilitate access from office tools. 
 
-** Use **
+## Use 
 
 The MCS Data Extractor searches the `/Downloaded` folder of the application installation directory for .csv files. When it finds one, it goes through the following steps:
 
@@ -28,10 +28,10 @@ The MCS Data Extractor searches the `/Downloaded` folder of the application inst
 
 It will go through every file in the folder each run, so once data has been imported it will save a little time to remove it from the folder. If the import fails it will raise a message box to notify of this, which should offer enough information to adjust mappings by hand if necessary.
 
-*** Creating a new mapping *** 
+### Creating a new mapping 
 
 There are four things that the MCS Data Extractor needs a record to have:
-* A table name - this should be the name for the imported data table. The table must have a unique name, obviously and should be self-explanatory, so you can recognise what you want to query.
+* A table name - this should be the name for the imported data table. The table must have a unique name, and should be self-explanatory, so you can recognise what you want to query. The table name *should have no spaces* so rather than "recycling equipment requests" try "recycling_equipment_requests" or similar.
 * A start date - the date the record was created.
 * A close date - the date the record is closed.
 * A user identifying field - This is a little more tricky to identify because MCS does not provide any data that can identify a specific user. This can be a combination of fields (the first line of the address and postcode, for example) or a single field such as the UPRN.
@@ -50,7 +50,7 @@ The options are:
 
 Once field types have been selected for every field and the start, close and identifying fields are chosen (start and close should both be date fields) the "Create Table" button will create the table.
 
-** Resolving type errors **
+### Resolving type errors 
 
 It is possible that import will fail with an error caused by a failed type mapping. The most likely cause is where a field mapped as a string gets a value that is too large. This can be resolved with a little manual adjustment of the database, for which you will need PGAdmin, the standard posgres administration tool, which is installed with Postgres as standard.
 
@@ -67,14 +67,50 @@ The process is as follows:
 
 With that done, you should be able to re-run your import.
 
-** Limitations **
+## Accessing Imported Data
 
-*** Changes to data structure ***
+The data can always be queried directly through the PGAdmin SQL tool, but for practicality the Postgres ODBC connector makes it available through the standard ODBC interface. This can be consumed from many different applications, but the most common one is likely to be Excel.
+
+### Consuming ODBC Data In Excel
+In your Excel document select `Data` and then on the left of the bar click the `Get Data` button.
+On the menu select `From other sources` and then `ODBC`.
+On the ODBC menu that opens select `MCS-Extractor` as your DSN.
+Finally open the `Advanced Options` section and add an SQL statement to choose the data you are importing. The simplest SQL statement would be `select * from [your table name]` but you can query this data in any configuration that you find useful and there are several built in views to help with this.
+
+### Existing Views
+When a new mapping table is created, some views are created along with it, to provide some easy access to data. These are the built-in views:
+
+#### [table]_delivery_periods
+
+Query: `SELECT * FROM [your table name]_delivery_periods`
+
+This view evaluates requests closed per month over the timespan that has been imported and examines them in terms of the duration between the start and close dates of those requests. It shows how many were closed within two weeks, in two to four weeks and over six weeks, along with the average and median number and the average number of requests closed per day.
+
+The view ignores requests where the start and close dates are the same because these are likely to be special cases and not informative with regard to the standard delivery process.
+
+#### [table]_quarterly_durations
+
+Query: `SELECT * FROM [your table name]_quarterly_durations`
+
+This view queries the number of requests closed by quarter, providing the number of requests, the number of unique users and duplicate requests (as far as this can be estimated from the data) along with the the mean and median turnaround for those requests. 
+
+#### [table]_request_sets
+
+Query: `SELECT * FROM [your table name]_request_sets`
+
+This view queries the complete list of user requests but includes an extra parameter, "request set" which indicates whether this is part of a set of overlapping requests. If two requests have the same request set but different servicerequest ids they are overlapping requests. If they have the same service request number they are duplicate data, which is not uncommon.
+
+This is a particularly useful query as the basis for further exploration - querying it with a status like `SELECT * FROM recycling_equipment_requests_request_sets WHERE Status = 'Under Review'` will show you the subset which are under review and allow you to see likely duplicates at a glance.
+
+
+## Limitations 
+
+### Changes to data structure 
 The MCS Extractor tool recognises table mappings based on the headers of the CSV file it is importing. If that CSV structure changes it will identify a new table. For example if a new question was added in My Council Services so that instead of ending at `Question 10` and `Answer `10` the CSV now contained `Question 11` and `Answer 11`, the system would identify this as a different table. 
 
 It is possible to work around this by updating the mappings table by hand in a similar way to that described above, but creating a new field in the table and a new mapping in order to facilitate the change. Bear in mind that with this done, it may not recognise older CSV data that ended at `Question 10` as belonging to the same table.
 
-** Matching up different, correlated data **
+### Matching up different, correlated data 
 The MCS Extractor tool is fundamentally simple and does not have the ability to automatically identify related data- for example the MCS quarterly and weekly reports both cover the same cases but provide somewhat different data about them. In general the weekly reports are more detailed and useful _but_ it may be useful to relate them both together. This is done fairly easily using SQL - unique cases will be identified from the `ServiceRequest` field, which is the Unique MCS Id for a given request, so this can be used for `JOIN` statements to combine that data.
 
 

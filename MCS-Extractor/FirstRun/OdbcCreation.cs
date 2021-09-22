@@ -17,7 +17,7 @@ namespace MCS_Extractor.FirstRun
             var result = false;
             var psCommand = String.Format("Add-OdbcDsn -Name \"MCS-Extractor-Install\" -DriverName \"PostgreSQL Unicode\" -DsnType \"user\" -SetPropertyValue \"{0}\"", connectionString);
             var powershell = new Command("Add-Odbcdsn");
-            powershell.Parameters.Add("Name", "MCS-Extractor-Install");
+            powershell.Parameters.Add("Name", "MCS Extractor");
             powershell.Parameters.Add("DriverName", "PostgreSQL Unicode");
             powershell.Parameters.Add("DsnType", "user");
             powershell.Parameters.Add("SetPropertyValue", connectionString);

@@ -165,13 +165,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Perago-draig.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Sql\database.sql" />
     <None Include="Sql\template.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Perago-draig.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

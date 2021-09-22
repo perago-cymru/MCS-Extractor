@@ -126,6 +126,8 @@ ORDER BY EXTRACT(YEAR from req.{$start_date}), EXTRACT(MONTH from req.{$start_da
 CREATE VIEW {$table}_quarterly_durations AS SELECT 
 	   fiscal_quarter(req.{$start_date}) as "quarter",
 	   COUNT(req.servicerequest) as "request count",
+	   COUNT(distinct rel.setId) AS "user count",
+      (COUNT(distinct req.servicerequest) - COUNT(distinct rel.setId)) AS "duplicate count",
 	   AVG(req.{$end_date} - req.{$start_date}) "mean duration",
 	   percentile_cont(0.5) within group ( order by req.{$end_date} - req.{$start_date} ) as "median duration"
 	   FROM recycling_equipment_requests req 
@@ -134,6 +136,11 @@ CREATE VIEW {$table}_quarterly_durations AS SELECT
 	   WHERE 0 < (req.{$end_date}-req.{$start_date})
 	   GROUP BY fiscal_quarter(req.{$start_date});
 
-
-
+CREATE VIEW {$table}_request_sets AS SELECT 
+	rel.setId as "request set",
+	req.*
+    FROM recycling_equipment_requests req
+    INNER JOIN recycling_equipment_requests_related_records(0) rel(recordid, setid, addrid, submission, closedate) 
+	ON req.id = rel.recordid
+	ORDER BY rel.setId, req.servicerequest;
 
