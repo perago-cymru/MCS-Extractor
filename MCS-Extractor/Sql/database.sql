@@ -1,4 +1,41 @@
 
+CREATE TABLE IF NOT EXISTS csv_index_fields
+(
+    id SERIAL,
+    table_name character varying(50) NOT NULL,
+    index_field character varying(50) ,
+    start_field character varying(50) ,
+    close_field character varying(50) ,
+    unique_identifier character varying(255) ,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS csv_table_mappings
+(
+    id SERIAL,
+    csv_name character varying(255)  NOT NULL,
+    db_name character varying(255)  NOT NULL,
+    table_name character varying(75)  NOT NULL,
+    type_name character varying(50)  NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS loaded_files
+(
+    id SERIAL,
+    loaded timestamp without time zone NOT NULL DEFAULT now(),
+    filename character varying(255) NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS table_metadata
+(
+    id SERIAL,
+    user_facing_title character varying(255)  NOT NULL,
+    table_name character varying(65) NOT NULL,
+     PRIMARY KEY (id)
+);
+
 CREATE OR REPLACE FUNCTION public.fiscal_quarter(dt timestamp without time zone)
     RETURNS character varying
     LANGUAGE 'plpgsql'

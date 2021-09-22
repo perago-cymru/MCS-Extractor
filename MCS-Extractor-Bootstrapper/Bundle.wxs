@@ -2,28 +2,36 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   
-  <Bundle Name="MCS_Extractor_Bootstrapper" Version="1.0.0.0" Manufacturer="" UpgradeCode="9d165ae8-303f-4887-b045-100470ed3b04">
+  <Bundle Name="MCS_Extractor_Bootstrapper" Version="1.0.0.0" Manufacturer="Perago" UpgradeCode="9d165ae8-303f-4887-b045-100470ed3b04">
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" />
 <!--    <Property Id="PostgresInstalled">0</Property>
     <Property Id="PGODBCInstalled">0</Property>
     <CustomAction Id="CheckOdpNet" BinaryKey="WiXCustomAction.dll" DllEntry="CheckOdpNetInstalled" Execute="immediate" /> -->
-    <util:RegistrySearch Variable="PGPresent-12" Root="HKLM" Key="SOFTWARE\postgresql-x64-12" Value="Version" />
-    <util:RegistrySearch Variable="PGPresent-13" Root="HKLM" Key="SOFTWARE\postgresql-x64-13" Value="Version" />
-    <util:RegistrySearch Variable="PGPresent-14" Root="HKLM" Key="SOFTWARE\postgresql-x64-14" Value="Version" />
+     <util:RegistrySearch Root="HKLM" Key="SOFTWARE\Microsoft\Net Framework Setup\NDP\v4\Full" Value="Version" Variable="Net4FullVersion" />
+    <util:RegistrySearch Root="HKLM" Key="SOFTWARE\Microsoft\Net Framework Setup\NDP\v4\Full" Value="Version" Variable="Net4x64FullVersion" Win64="yes" />
+    <util:RegistrySearch Variable="PGPresent_12" Root="HKLM" Key="SOFTWARE\PostgreSQL\Installations\postgresql-x64-12" Value="Version" />
+    <util:RegistrySearch Variable="PGPresent_13" Root="HKLM" Key="SOFTWARE\PostgreSQL\Installations\postgresql-x64-13" Value="Version" />
+    <util:RegistrySearch Variable="PGPresent_14" Root="HKLM" Key="SOFTWARE\PostgreSQL\Installations\postgresql-x64-14" Value="Version" />
     <util:RegistrySearch Variable="ODBCDriver" Root="HKLM" Key="SOFTWARE\psqlODBC_x64" Value="Version"/>
     <Chain>
-      <PackageGroupRef Id="NetFx462Redist"/>
-      <ExePackage Id="PostgreSQL-13.4" 
+        <ExePackage Id="Net45" Name="Microsoft .NET Framework 4.7.2 Setup" Cache="no" Compressed="yes" PerMachine="yes" Permanent="yes" Vital="yes" InstallCommand="/q"
+        SourceFile="ndp472-kb4054530-x86-x64-allos-enu.exe"
+        InstallCondition="(VersionNT >= v6.0 OR VersionNT64 >= v6.0) AND (NOT (Net4FullVersion = &quot;4.7.3081&quot; OR Net4x64FullVersion = &quot;4.7.3081&quot;))"/>
+      <ExePackage Id="PostgreSQL_13.4" 
                   DisplayName="Postgres Database Server"
-                  SourceFile="postgres-13.4-1-windows-x64.exe" 
-                  DetectCondition="(NOT PGPresent-12) AND (NOT PGPresent-13) AND (NOT PGPresent-14)"
+                  SourceFile="postgresql-13.4-1-windows-x64.exe" 
+                  Permanent="yes"
+                  DetectCondition="(NOT PGPresent_12) AND (NOT PGPresent_13) AND (NOT PGPresent_14)"
                   />
-      <ExePackage Id="PGODBC-Connector" 
+      <ExePackage Id="PGODBC_Connector" 
                   DisplayName="Postgres ODBC Connector"
                   SourceFile="psqlodbc-setup.exe"
-                  DetectCondition="NOT ODBCDriver"/>
-      <MsiPackage Id="MCS-Extractor"
+                  DetectCondition="NOT ODBCDriver"
+                  Permanent="yes"
+                  />
+      <MsiPackage Id="MCS_Extractor"
                   DisplayName="My Council Services Extractor"
+                  DisplayInternalUI="yes"
                   SourceFile="$(var.MCS-Extractor-Installer.TargetPath)" />
     </Chain>
   </Bundle>

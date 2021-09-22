@@ -17,6 +17,7 @@
 		<Feature Id="ProductFeature" Title="MCS_Extractor_Installer" Level="1">
 			<ComponentGroupRef Id="ProductComponents" />
       <ComponentGroupRef Id="SQLComponents" />
+      <ComponentGroupRef Id="DownloadFolderGroup" />
 		</Feature>
   
     <Property Id="POSTGRESUSERNAME" Value="postgres" />
@@ -24,18 +25,18 @@
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
     <Property Id="SQLPATH">$(var.MCS-Extractor.ProjectDir)\Sql\database.sql</Property>
     <Property Id="MsiLogging" Value="v" />
-
-
-  
-
+    
+    <UIRef Id="WixUI_InstallDir" />
+    <UIRef Id="WixUI_ErrorProgressText" />
 	</Product>
   
 	<Fragment>
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="ProgramFilesFolder">
 				<Directory Id="INSTALLFOLDER" Name="MCS Extractor" >
-          <Directory Id="DownloadFolder" Name="Downloaded" />
           <Directory Id="SQLFolder" Name="Sql" />
+          <Directory Id="DownloadFolder" Name="Downloaded" >
+          </Directory>
         </Directory>
 			</Directory>
 		</Directory>
@@ -55,6 +56,11 @@
         <File Id="DatabaseSQL" Name="database.sql" DiskId="1" Source="$(var.MCS-Extractor.ProjectDir)\Sql\database.sql" KeyPath="no" />
       </Component>
     </ComponentGroup>
+    <ComponentGroup Id="DownloadFolderGroup">
+      <Component Id="DownloadFolderComponent" Directory="DownloadFolder" Guid="3189febc-351d-402f-a3ae-6224b0bcb129">
+        <CreateFolder />
+      </Component>
+    </ComponentGroup> 
 	</Fragment>
 
 
