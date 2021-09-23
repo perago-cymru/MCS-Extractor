@@ -30,8 +30,9 @@ It will go through every file in the folder each run, so once data has been impo
 
 ### Creating a new mapping 
 
-There are four things that the MCS Data Extractor needs a record to have:
+There are five things that the MCS Data Extractor needs a record to have:
 * A table name - this should be the name for the imported data table. The table must have a unique name, and should be self-explanatory, so you can recognise what you want to query. The table name *should have no spaces* so rather than "recycling equipment requests" try "recycling_equipment_requests" or similar.
+* The name of the My Council Services request id field. This is often "servicerequest."
 * A start date - the date the record was created.
 * A close date - the date the record is closed.
 * A user identifying field - This is a little more tricky to identify because MCS does not provide any data that can identify a specific user. This can be a combination of fields (the first line of the address and postcode, for example) or a single field such as the UPRN.
@@ -94,44 +95,20 @@ Query: `SELECT * FROM [your table name]_quarterly_durations`
 
 This view queries the number of requests closed by quarter, providing the number of requests, the number of unique users and duplicate requests (as far as this can be estimated from the data) along with the the mean and median turnaround for those requests. 
 
-#### [table]_request_sets
 
-Query: `SELECT * FROM [your table name]_request_sets`
+### [table]_duplicates
 
-This view queries the complete list of user requests but includes an extra parameter, "request set" which indicates whether this is part of a set of overlapping requests. If two requests have the same request set but different servicerequest ids they are overlapping requests. If they have the same service request number they are duplicate data, which is not uncommon.
+Query: `SELECT * FROM [your table name]_duplicates`
 
-This is a particularly useful query as the basis for further exploration - querying it with a status like `SELECT * FROM recycling_equipment_requests_request_sets WHERE Status = 'Under Review'` will show you the subset which are under review and allow you to see likely duplicates at a glance.
-
-### Duplicate Requests
-
-This is not a built in view because it relies on the "servicerequest" field, which is the My Council Services id field but is not guaranteed to be the same in every table, however it is easy enough to change as this field will always be present under some guise and it opens the door to some very useful queries.
-
-The view can be created by running the following in the PGAdmin tool:
-```
-CREATE VIEW recycling_equipment_requests_duplicates AS
- WITH related (recordid, setid, addrid, submission, closedate) as ( SELECT * FROM recycling_equipment_requests_related_records(0) )
- SELECT rel.setid AS "request_set",
-    req.servicerequest,
-	setSizes.setSize - count(req.servicerequest) as "duplicates"
-   FROM recycling_equipment_requests req
-     INNER JOIN related rel 
-	 ON req.id = rel.recordid
-	 INNER JOIN (SELECT setId as currentSet, count(recordid) as setSize FROM related GROUP BY setId) setSizes
-	 ON rel.setId = setSizes.currentSet 
-  GROUP BY req.servicerequest, rel.setId, setSizes.setSize
-  ORDER BY rel.setid;
-```
-You would, of course, need to change the name `recycling_equipment_requests` to your table name throughout and if the name of the MCS id in your imported data is not `servicerequest` you would need to call that.
-
-  This is super-useful because gives an authentic list of duplicates based on the MCS id - the data is likely to contain duplicates because the reporting tool does not guarantee uniqueness, but the ServiceRequest should be unique. Although the results of the query are not very interesting on their own, they open the door to some useful opportunities by joining them to other queries. For example:
+  This view only returns a list of request ids with the number of duplicates that they super-useful because gives an authentic list of duplicates based on the MCS id - the data is likely to contain duplicates because the reporting tool does not guarantee uniqueness, but the ServiceRequest should be unique. Although the results of the query are not very interesting on their own, they open the door to some useful opportunities by joining them to other queries. For example:
  ```
-  SELECT req.*, duplicates.duplicates FROM recycling_equipment_requests req 
-   INNER JOIN recycling_equipment_requests_duplicates duplicates 
+  SELECT req.*, duplicates.duplicates FROM [table] req 
+   INNER JOIN [table]_duplicates duplicates 
    ON req.servicerequest = duplicates.servicerequest
    WHERE req.status='Under Review'
    ORDER BY duplicates.duplicates, req.servicerequest
 ```
-This query will show you all currently "Under Review" records that have 
+This query will show you all currently "Under Review" records side by side with any records that have been identified as duplicates. 
 
 
 

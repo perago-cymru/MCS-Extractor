@@ -141,11 +141,11 @@ CREATE VIEW {$table}_duplicates AS
  WITH related (recordid, setid, addrid, submission, closedate) as ( SELECT * FROM {$table}_related_records(0) )
  SELECT rel.setid AS "request_set",
     req.{$id},
-	setSizes.setSize - count({$id}) as "duplicates"
+	setSizes.setSize as "duplicates"
    FROM {$table} req
      INNER JOIN related rel 
 	 ON req.{$id} = rel.recordid
-	 INNER JOIN (SELECT setId as currentSet, count(recordid) as setSize FROM related GROUP BY setId) setSizes
+	 INNER JOIN (SELECT setId as currentSet, count(distinct recordid) as setSize FROM related GROUP BY setId) setSizes
 	 ON rel.setId = setSizes.currentSet 
   GROUP BY req.{$id}, rel.setId, setSizes.setSize
   ORDER BY rel.setid;
