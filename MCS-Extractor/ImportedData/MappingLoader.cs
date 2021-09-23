@@ -33,7 +33,7 @@ namespace MCS_Extractor.ImportedData
 
         public MappingLoader()
         {
-            connection = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
+            connection = CSVImporter.GetConnection();
         }
 
         public List<DataMappingType> GetMappings(string tableName)

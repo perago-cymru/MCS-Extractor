@@ -36,15 +36,12 @@
                                             Binding="{Binding RowName}">
 
                         </DataGridTextColumn>
-                        <!-- DataGridComboBoxColumn Header="Data Type" 
-                                                ItemsSource ="{Binding MappingType.MappingOptions}" >
-                           
-                        </ -->
+
                         <DataGridTemplateColumn Header="Data Type" >
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <ComboBox ItemsSource="{Binding Source={StaticResource dataFromEnum}}"
-                                              SelectedItem="{Binding DataType}">
+                                              SelectedItem="{Binding DataType}" >
 
                                     </ComboBox>
                                 </DataTemplate>

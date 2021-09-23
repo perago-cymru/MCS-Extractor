@@ -141,6 +141,7 @@ namespace MCS_Extractor
             }
         }
 
+
         private async void ImportFiles()
         {
             await Task.Run(() =>
@@ -187,7 +188,10 @@ namespace MCS_Extractor
             }
             else
             {
-                ImportLabel.Content = "No new files to import.";
+                this.Dispatcher.Invoke(() =>
+                {
+                    ImportLabel.Content = "No new files to import.";
+                });
 
             }
 
@@ -199,6 +203,7 @@ namespace MCS_Extractor
             ImportList.Visibility = Visibility.Collapsed;
             MappingContainer.Visibility = Visibility.Visible;
             var csMapping = importer.SummariseCSV(fileName);
+            MappingGrid.Items.Clear();
             if (!csMapping.Empty)
             {
                 var typeList = csMapping.EstimateTypes();

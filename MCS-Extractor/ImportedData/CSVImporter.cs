@@ -88,7 +88,7 @@ namespace MCS_Extractor.ImportedData
 
         public static NpgsqlConnection GetConnection()
         {
-            var connectionString = String.Format("{0}Database={1}", ConfigurationManager.AppSettings["ConnectionString"], ConfigurationManager.AppSettings["ConnectionString"]);
+            var connectionString = String.Format("{0}Database={1}", ConfigurationManager.AppSettings["ConnectionString"], ConfigurationManager.AppSettings["DatabaseName"]);
             return new NpgsqlConnection(connectionString);
         }
 

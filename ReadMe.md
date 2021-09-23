@@ -62,7 +62,7 @@ The process is as follows:
 4. Open the `Columns` list and right click on the column where the problem exists, select `properties`.
 5. Go to the `Definition` tab and change the `data type` to the new type. If you have a problem with over-long text, the field will probably be of type 'character varying' (which corresponds to 'string' in the import tool) and you will need to change it to `text`. Not all field types will be available because changing between a numeric and textual data type can't be managed automatically.
 7. At the top of the view, select the `query` tool (resembling a triple-stacked cake with a play button by it) and then in the Query Editor type `SELECT * FROM csv_table_mappings WHERE table_name = '[your table name]'` to find all the mappings for your table.
-8. Double click on the `type_name` column in the row where the `db_name` matches the field you just changed and change it to the new type, which must be one of `Boolean, Varchar, Integer, Bigint, text, Double, Numeric, Date` - these correspond to the options above, `Varchar` is the same as `String`, `Bigint` is `Long` and `Numeric` is `Decimal`. If you have any other fields of the same type, copy the value from there.
+8. Double click on the `type_name` column in the row where the `db_name` matches the field you just changed and change it to the new type, which must be one of `Boolean, Varchar, Integer, Bigint, text, Double, Numeric, Date` - these correspond to the options above, `Varchar` is the same as `String`, `Bigint` is `Long` and `Numeric` is `Decimal`. If you have any other fields of the same type, copy the value from there. Click on "save data changes" at the top (three stacked cakes with a padlock) to save the change. 
 9. Hit the 'OK' button and the change will be saved.
 
 With that done, you should be able to re-run your import.
@@ -72,10 +72,10 @@ With that done, you should be able to re-run your import.
 The data can always be queried directly through the PGAdmin SQL tool, but for practicality the Postgres ODBC connector makes it available through the standard ODBC interface. This can be consumed from many different applications, but the most common one is likely to be Excel.
 
 ### Consuming ODBC Data In Excel
-In your Excel document select `Data` and then on the left of the bar click the `Get Data` button.
-On the menu select `From other sources` and then `ODBC`.
-On the ODBC menu that opens select `MCS-Extractor` as your DSN.
-Finally open the `Advanced Options` section and add an SQL statement to choose the data you are importing. The simplest SQL statement would be `select * from [your table name]` but you can query this data in any configuration that you find useful and there are several built in views to help with this.
+1. In your Excel document select `Data` and then on the left of the bar click the `Get Data` button.
+2. On the menu select `From other sources` and then `ODBC`.
+3. On the ODBC menu that opens select `MCS-Extractor` as your DSN.
+4. Finally open the `Advanced Options` section and add an SQL statement to choose the data you are importing. The simplest SQL statement would be `select * from [your table name]` but you can query this data in any configuration that you find useful and there are several built in views to help with this.
 
 ### Existing Views
 When a new mapping table is created, some views are created along with it, to provide some easy access to data. These are the built-in views:
@@ -106,7 +106,7 @@ This is a particularly useful query as the basis for further exploration - query
 ## Limitations 
 
 ### Changes to data structure 
-The MCS Extractor tool recognises table mappings based on the headers of the CSV file it is importing. If that CSV structure changes it will identify a new table. For example if a new question was added in My Council Services so that instead of ending at `Question 10` and `Answer `10` the CSV now contained `Question 11` and `Answer 11`, the system would identify this as a different table. 
+The MCS Extractor tool recognises table mappings based on the headers of the CSV file it is importing. If that CSV structure changes it will identify a new table. For example if a new question was added in My Council Services so that instead of ending at `Question 10` and `Answer 10` the CSV now contained `Question 11` and `Answer 11`, the system would identify this as a different table. 
 
 It is possible to work around this by updating the mappings table by hand in a similar way to that described above, but creating a new field in the table and a new mapping in order to facilitate the change. Bear in mind that with this done, it may not recognise older CSV data that ended at `Question 10` as belonging to the same table.
 
