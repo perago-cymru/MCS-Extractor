@@ -157,7 +157,7 @@ namespace MCS_Extractor.ImportedData
             statement = statement.Replace("{$table}", summary.TableName);
             statement = statement.Replace("{$start_date}", summary.StartField);
             statement = statement.Replace("{$end_date}", summary.CloseField);
-            statement = statement.Replace("{$id}", "id");
+            statement = statement.Replace("{$id}", summary.IdField);
             statement = statement.Replace("{$identifier}", summary.UserIdentifier );
             var command = new NpgsqlCommand(statement, connection);
             if (openConnection)
@@ -180,7 +180,7 @@ namespace MCS_Extractor.ImportedData
                 connection.Open();
             }
             command.Parameters.AddWithValue("tb", summary.TableName);
-            command.Parameters.AddWithValue("idx", "id");
+            command.Parameters.AddWithValue("idx", summary.IdField);
             command.Parameters.AddWithValue("start", summary.StartField);
             command.Parameters.AddWithValue("close", summary.CloseField);
             command.Parameters.AddWithValue("unique", summary.UserIdentifier);

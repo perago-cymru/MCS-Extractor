@@ -28,11 +28,12 @@ namespace MCS_Extractor.ImportedData
             {PGType.Numeric, NpgsqlDbType.Numeric }
         };
 
-        public void CreateSummary(string tableName, string startField, string closeField, string[] identifierFields)
+        public void CreateSummary(string tableName, string idField, string startField, string closeField, string[] identifierFields)
         {
             summary = new TableSummary()
             {
                 TableName = tableName,
+                IdField = idField,
                 StartField = startField,
                 CloseField = closeField,
                 UserIdentifierFields = identifierFields

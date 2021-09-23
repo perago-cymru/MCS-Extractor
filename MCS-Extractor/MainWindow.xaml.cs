@@ -67,6 +67,7 @@ namespace MCS_Extractor
                             identifiers.Add(MappingCreator.ClearSpacing(item.ToString()));
                         }
                         creator.CreateSummary(tableName,
+                            MappingCreator.ClearSpacing(IdField.SelectedValue.ToString()),
                             MappingCreator.ClearSpacing(StartField.SelectedValue.ToString()),
                             MappingCreator.ClearSpacing(EndField.SelectedValue.ToString()), identifiers.ToArray());
 
@@ -113,6 +114,12 @@ namespace MCS_Extractor
                 result = false;
             }
 
+            if (IdField.SelectedIndex == 0)
+            {
+                IdField.BorderBrush = new SolidColorBrush(Colors.Red);
+                result = false;
+            }
+
             if (IdentifierFields.Items.Count == 0)
             {
                 IdentifierFields.BorderBrush = new SolidColorBrush(Colors.Red);
@@ -141,6 +148,23 @@ namespace MCS_Extractor
             }
         }
 
+        private void DataType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox box = sender as ComboBox;
+            if (MappingGrid.CurrentCell.IsValid)
+            {
+                MappingType row = (MappingType)MappingGrid.CurrentCell.Item;
+                PGType newVal = (PGType)Enum.Parse(typeof(PGType), box.SelectedItem.ToString());
+                if (newVal != row.DataType)
+                {
+                    row.DataType = newVal;
+                }
+            }
+            
+        }
+
+
+       
 
         private async void ImportFiles()
         {
@@ -204,6 +228,18 @@ namespace MCS_Extractor
             MappingContainer.Visibility = Visibility.Visible;
             var csMapping = importer.SummariseCSV(fileName);
             MappingGrid.Items.Clear();
+            FieldNames.Items.Clear();
+            IdentifierFields.Items.Clear();
+            foreach ( var cb in new [] {  StartField, EndField, IdField })
+            {
+                for ( var i=cb.Items.Count-1; 0 < i; i-- )
+                {
+                    cb.Items.RemoveAt(i);
+                }
+                cb.SelectedIndex = 0;
+               // ((ComboBoxItem)cb.Items[0]).IsSelected = true;
+            }   
+            
             if (!csMapping.Empty)
             {
                 var typeList = csMapping.EstimateTypes();
@@ -230,11 +266,13 @@ namespace MCS_Extractor
                     MappingGrid.Items.Add(m);
                     StartField.Items.Add(m.RowName);
                     EndField.Items.Add(m.RowName);
+                    IdField.Items.Add(m.RowName);
                     FieldNames.Items.Add(m.RowName);
                 }
             }
         }
-        
+
+     
     }
 
 

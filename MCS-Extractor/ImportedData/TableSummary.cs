@@ -18,12 +18,14 @@ namespace MCS_Extractor.ImportedData
 
         public string CloseField { get; set; }
 
+        public string IdField { get; set; }
+
         public string[] UserIdentifierFields { get; set; }
 
         public string UserIdentifier {
             get
             {
-                return String.Join("_", UserIdentifierFields);
+                return String.Join("_", UserIdentifierFields.OrderBy( o => o ).ToArray());
             }
         }
 
@@ -47,6 +49,7 @@ namespace MCS_Extractor.ImportedData
                         TableName = tableName,
                         StartField = (string)reader["start_field"],
                         CloseField = (string)reader["close_field"],
+                        IdField = (string)reader["index_field"],
                         UserIdentifierFields = ((string)reader["unique_identifier"]).Split('_')
                     };
 

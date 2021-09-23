@@ -102,6 +102,39 @@ This view queries the complete list of user requests but includes an extra param
 
 This is a particularly useful query as the basis for further exploration - querying it with a status like `SELECT * FROM recycling_equipment_requests_request_sets WHERE Status = 'Under Review'` will show you the subset which are under review and allow you to see likely duplicates at a glance.
 
+### Duplicate Requests
+
+This is not a built in view because it relies on the "servicerequest" field, which is the My Council Services id field but is not guaranteed to be the same in every table, however it is easy enough to change as this field will always be present under some guise and it opens the door to some very useful queries.
+
+The view can be created by running the following in the PGAdmin tool:
+```
+CREATE VIEW recycling_equipment_requests_duplicates AS
+ WITH related (recordid, setid, addrid, submission, closedate) as ( SELECT * FROM recycling_equipment_requests_related_records(0) )
+ SELECT rel.setid AS "request_set",
+    req.servicerequest,
+	setSizes.setSize - count(req.servicerequest) as "duplicates"
+   FROM recycling_equipment_requests req
+     INNER JOIN related rel 
+	 ON req.id = rel.recordid
+	 INNER JOIN (SELECT setId as currentSet, count(recordid) as setSize FROM related GROUP BY setId) setSizes
+	 ON rel.setId = setSizes.currentSet 
+  GROUP BY req.servicerequest, rel.setId, setSizes.setSize
+  ORDER BY rel.setid;
+```
+You would, of course, need to change the name `recycling_equipment_requests` to your table name throughout and if the name of the MCS id in your imported data is not `servicerequest` you would need to call that.
+
+  This is super-useful because gives an authentic list of duplicates based on the MCS id - the data is likely to contain duplicates because the reporting tool does not guarantee uniqueness, but the ServiceRequest should be unique. Although the results of the query are not very interesting on their own, they open the door to some useful opportunities by joining them to other queries. For example:
+ ```
+  SELECT req.*, duplicates.duplicates FROM recycling_equipment_requests req 
+   INNER JOIN recycling_equipment_requests_duplicates duplicates 
+   ON req.servicerequest = duplicates.servicerequest
+   WHERE req.status='Under Review'
+   ORDER BY duplicates.duplicates, req.servicerequest
+```
+This query will show you all currently "Under Review" records that have 
+
+
+
 
 ## Limitations 
 

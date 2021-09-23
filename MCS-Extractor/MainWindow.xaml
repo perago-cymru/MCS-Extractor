@@ -26,11 +26,20 @@
         <GroupBox x:Name="MappingContainer" Header="Mapping" Height="501" Margin="10,59,10,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Visibility="Collapsed">
             <!-- https://docs.microsoft.com/en-us/dotnet/api/system.windows.controls.datagridtemplatecolumn?view=net-5.0 -->
             <Grid Name="MappingBoxGrid" Margin="0,0,0,-2">
-                <Label Name="TitleLabel" VerticalAlignment="Top" HorizontalAlignment="Left">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="16*"/>
+                    <RowDefinition Height="465*"/>
+                </Grid.RowDefinitions>
+                <Label Name="TitleLabel" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.RowSpan="2">
                     Table:
                 </Label>
-                <TextBox Height="23" Name="TableName" TextWrapping="Wrap" Text="" Width="279" VerticalAlignment="Top" HorizontalAlignment="Left"  Margin="71,4,0,0" />
-                <DataGrid Name="MappingGrid" AutoGenerateColumns="False" Height="254" Margin="5,40,5,0" VerticalAlignment="Top">
+                <TextBox Height="23" Name="TableName" TextWrapping="Wrap" Text="" Width="279" VerticalAlignment="Top" HorizontalAlignment="Left"  Margin="71,4,0,0" Grid.RowSpan="2" />
+
+                <ComboBox x:Name="IdField" Margin="0,5,5,0" VerticalAlignment="Top" Grid.RowSpan="2" HorizontalAlignment="Right" Width="189">
+                    <ComboBoxItem Name="IdUnset" IsSelected="True">MyCouncilServices Id Field</ComboBoxItem>
+                </ComboBox>
+
+                <DataGrid Name="MappingGrid" AutoGenerateColumns="False" Height="254" Margin="5,24,5,0" VerticalAlignment="Top" Grid.Row="1">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Field Name" 
                                             Binding="{Binding RowName}">
@@ -41,7 +50,8 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <ComboBox ItemsSource="{Binding Source={StaticResource dataFromEnum}}"
-                                              SelectedItem="{Binding DataType}" >
+                                              SelectedItem="{Binding DataType}"
+                                              SelectionChanged="DataType_SelectionChanged">
 
                                     </ComboBox>
                                 </DataTemplate>
@@ -52,20 +62,20 @@
                         <DataGridTextColumn Header="Example 3" Binding="{Binding Example3}"></DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-                <Button x:Name="CreateButton" Content="Create Table" Margin="0,0,5,12" VerticalAlignment="Bottom" HorizontalAlignment="Right" Click="CreateButton_Click" Width="95"/>
-                <ComboBox x:Name="StartField" HorizontalAlignment="Left" Margin="5,306,0,0" VerticalAlignment="Top" Width="189">
+                <Button x:Name="CreateButton" Content="Create Table" Margin="0,0,5,12" VerticalAlignment="Bottom" HorizontalAlignment="Right" Click="CreateButton_Click" Width="95" Grid.Row="1"/>
+                <ComboBox x:Name="StartField" HorizontalAlignment="Left" Margin="5,290,0,0" VerticalAlignment="Top" Width="189" Grid.Row="1">
                     <ComboBoxItem Name="startUnset" IsSelected="True">Start Date Field</ComboBoxItem>
                 </ComboBox>
-                <ComboBox x:Name="EndField" HorizontalAlignment="Left" Margin="210,306,0,0" VerticalAlignment="Top" Width="187"  >
+                <ComboBox x:Name="EndField" HorizontalAlignment="Left" Margin="210,290,0,0" VerticalAlignment="Top" Width="187" Grid.Row="1"  >
                     <ComboBoxItem Name="endUnset" IsSelected="True">End Date Field
                     </ComboBoxItem>
                 </ComboBox>
-                <ListBox x:Name="FieldNames" HorizontalAlignment="Left" Margin="5,369,0,12" Width="189" SelectionChanged="FieldNames_SelectionChanged"/>
-                <ListBox x:Name="IdentifierFields" HorizontalAlignment="Left" Margin="210,369,0,12" Width="187" SelectionChanged="IdentifierFields_SelectionChanged"/>
-                <Label Content="Select a customer-identifying field-combination (ie first line of address and postcode )" HorizontalAlignment="Left" Margin="5,338,0,0" VerticalAlignment="Top" Width="580"/>
+                <ListBox x:Name="FieldNames" HorizontalAlignment="Left" Margin="5,353,0,12" Width="189" SelectionChanged="FieldNames_SelectionChanged" Grid.Row="1"/>
+                <ListBox x:Name="IdentifierFields" HorizontalAlignment="Left" Margin="210,353,0,12" Width="187" SelectionChanged="IdentifierFields_SelectionChanged" Grid.Row="1"/>
+                <Label Content="Select a customer-identifying field-combination (ie first line of address and postcode )" HorizontalAlignment="Left" Margin="5,322,0,0" VerticalAlignment="Top" Width="580" Grid.Row="1"/>
             </Grid>
         </GroupBox>
-        <ListBox Name="ImportList" Margin="10,38,16,10" Grid.ColumnSpan="2"/>
+        <ListBox Name="ImportList" Margin="10,38,16,10" Grid.ColumnSpan="2" Visibility="Visible"/>
 
 
     </Grid>

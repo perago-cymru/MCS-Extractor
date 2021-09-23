@@ -106,16 +106,16 @@ $BODY$;
 
 
 CREATE VIEW {$table}_delivery_periods AS SELECT EXTRACT(YEAR from req.{$start_date}) ||'-'|| EXTRACT(MONTH from req.{$start_date}) as "month",
-	   COUNT(req.id) as submissions,
+	   COUNT(req.{$id}) as submissions,
 	   AVG(req.{$end_date} - req.{$start_date}),
-	   COUNT(req.id) FILTER(WHERE (req.{$end_date} - req.{$start_date} <14 )) AS "less than a fortnight",
-	   COUNT(req.id) FILTER(WHERE (req.{$end_date} - req.{$start_date} > 14 ) AND (req.{$end_date} - req.{$start_date} < 28 )) AS "two to four weeks",
-	   COUNT(req.id) FILTER(WHERE (req.{$end_date} - req.{$start_date} > 28  )) AS "over four weeks",
+	   COUNT(req.{$id}) FILTER(WHERE (req.{$end_date} - req.{$start_date} <14 )) AS "less than a fortnight",
+	   COUNT(req.{$id}) FILTER(WHERE (req.{$end_date} - req.{$start_date} > 14 ) AND (req.{$end_date} - req.{$start_date} < 28 )) AS "two to four weeks",
+	   COUNT(req.{$id}) FILTER(WHERE (req.{$end_date} - req.{$start_date} > 28  )) AS "over four weeks",
 	   AVG(del.deliveries) as "closed daily",
 	   percentile_cont(0.5) within group(  order by del.deliveries ) as "median closed daily"
-FROM recycling_equipment_requests req
+FROM {$table} req
 LEFT JOIN 
-    ( SELECT * FROM  (SELECT req.{$end_date} as {$end_date}, count(id) as deliveries from recycling_equipment_requests req WHERE EXTRACT (isodow FROM req.{$end_date}) < 6 AND req.status='Delivered' GROUP BY  req.{$end_date}) ned 
+    ( SELECT * FROM  (SELECT req.{$end_date} as {$end_date}, count({$id}) as deliveries from {$table} req WHERE EXTRACT (isodow FROM req.{$end_date}) < 6 AND req.status='Delivered' GROUP BY  req.{$end_date}) ned 
 	 WHERE ned.deliveries < 50 ) del
      ON del.{$end_date} = req.{$end_date}
 WHERE req.status = 'Delivered'
@@ -125,22 +125,28 @@ ORDER BY EXTRACT(YEAR from req.{$start_date}), EXTRACT(MONTH from req.{$start_da
 
 CREATE VIEW {$table}_quarterly_durations AS SELECT 
 	   fiscal_quarter(req.{$start_date}) as "quarter",
-	   COUNT(req.servicerequest) as "request count",
+	   COUNT(distinct req.{$id}) as "request count",
 	   COUNT(distinct rel.setId) AS "user count",
-      (COUNT(distinct req.servicerequest) - COUNT(distinct rel.setId)) AS "duplicate count",
+      (COUNT(distinct req.{$id}) - COUNT(distinct rel.setId)) AS "duplicate count",
 	   AVG(req.{$end_date} - req.{$start_date}) "mean duration",
 	   percentile_cont(0.5) within group ( order by req.{$end_date} - req.{$start_date} ) as "median duration"
-	   FROM recycling_equipment_requests req 
+	   FROM {$table} req 
 	   INNER JOIN {$table}_related_records(0) rel
-	   ON req.id = rel.recordId
+	   ON req.{$id} = rel.recordId
 	   WHERE 0 < (req.{$end_date}-req.{$start_date})
 	   GROUP BY fiscal_quarter(req.{$start_date});
 
-CREATE VIEW {$table}_request_sets AS SELECT 
-	rel.setId as "request set",
-	req.*
-    FROM recycling_equipment_requests req
-    INNER JOIN recycling_equipment_requests_related_records(0) rel(recordid, setid, addrid, submission, closedate) 
-	ON req.id = rel.recordid
-	ORDER BY rel.setId, req.servicerequest;
+
+CREATE VIEW {$table}_duplicates AS
+ WITH related (recordid, setid, addrid, submission, closedate) as ( SELECT * FROM {$table}_related_records(0) )
+ SELECT rel.setid AS "request_set",
+    req.{$id},
+	setSizes.setSize - count({$id}) as "duplicates"
+   FROM {$table} req
+     INNER JOIN related rel 
+	 ON req.{$id} = rel.recordid
+	 INNER JOIN (SELECT setId as currentSet, count(recordid) as setSize FROM related GROUP BY setId) setSizes
+	 ON rel.setId = setSizes.currentSet 
+  GROUP BY req.{$id}, rel.setId, setSizes.setSize
+  ORDER BY rel.setid;
 
