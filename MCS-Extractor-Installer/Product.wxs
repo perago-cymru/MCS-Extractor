@@ -3,14 +3,14 @@
      xmlns:util='http://schemas.microsoft.com/wix/UtilExtension'
      xmlns:ui='http://schemas.microsoft.com/wix/UIExtension'>
 	<Product Id="755303bf-ad0e-47bd-b32e-51ddb8ff7dad" Name="MCS_Extractor_Installer" 
-           Language="1033" Version="0.9.0.0" Manufacturer="Perago-Wales"
+           Language="1033" Version="1.0.1.0" Manufacturer="Perago-Wales"
            UpgradeCode="759fdfe9-5cc7-46f4-9e59-15805e3f8f64">
   
 		<Package 
         Id="*" Description="Installer package for the My Council Services Extractor tool"
         InstallerVersion="200" Compressed="yes" InstallScope="perMachine" 
              />
-
+    <WixVariable Id="WixUILicenseRtf" Value="gpl-3.0.rtf" />
 		<MajorUpgrade DowngradeErrorMessage="A newer version of MCS Extractor is already installed." />
 		<MediaTemplate />
 

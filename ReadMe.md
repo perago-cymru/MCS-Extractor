@@ -102,11 +102,11 @@ Query: `SELECT * FROM [your table name]_duplicates`
 
   This view only returns a list of request ids with the number of duplicates that they super-useful because gives an authentic list of duplicates based on the MCS id - the data is likely to contain duplicates because the reporting tool does not guarantee uniqueness, but the ServiceRequest should be unique. Although the results of the query are not very interesting on their own, they open the door to some useful opportunities by joining them to other queries. For example:
  ```
-  SELECT req.*, duplicates.duplicates FROM [table] req 
-   INNER JOIN [table]_duplicates duplicates 
+  SELECT duplicates.request_set, req.*, duplicates.duplicates FROM recycling_requests req 
+   INNER JOIN recycling_requests_duplicates duplicates 
    ON req.servicerequest = duplicates.servicerequest
    WHERE req.status='Under Review'
-   ORDER BY duplicates.duplicates, req.servicerequest
+   ORDER BY duplicates.duplicates desc, req.servicerequest;
 ```
 This query will show you all currently "Under Review" records side by side with any records that have been identified as duplicates. 
 

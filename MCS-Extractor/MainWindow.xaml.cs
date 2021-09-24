@@ -76,16 +76,21 @@ namespace MCS_Extractor
                             MappingType row = (MappingType)MappingGrid.Items[i];
                             creator.AddMapping(row.RowName, row.DataType);
                         }
-
-                        creator.SaveMappings(tableName);
-                        MappingContainer.Visibility = Visibility.Collapsed;
-                        ImportList.Visibility = Visibility.Visible;
-                        ImportFiles();
-
+                        try
+                        {
+                            creator.SaveMappings(tableName);
+                            MappingContainer.Visibility = Visibility.Collapsed;
+                            ImportList.Visibility = Visibility.Visible;
+                            ImportFiles();
+                        }
+                        catch ( Exception ef )
+                        {
+                            MessageBox.Show("Error creating mappings: " + ef.Message + " - please check all your fields are of the right type.", "Error creating mappings");
+                        }
                     }
                     else
                     {
-                        MessageBox.Show("Table already exists", String.Format("The table '{0}' already exists- please try a new name.", tableName));
+                        MessageBox.Show(String.Format("The table '{0}' already exists- please try a new name.", tableName), "Table already exists");
                     }
                 } else
                 {
@@ -163,9 +168,6 @@ namespace MCS_Extractor
             
         }
 
-
-       
-
         private async void ImportFiles()
         {
             await Task.Run(() =>
@@ -180,6 +182,13 @@ namespace MCS_Extractor
                     this.Dispatcher.Invoke(() =>
                     {
                         MessageBox.Show("Import error: " + ex.Message + Environment.NewLine + "Location: " + ex.Where);
+                    });
+                }
+                catch ( Exception ef )
+                {
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        MessageBox.Show("Import error: " + ef.Message + Environment.NewLine + "(Check your mapping field types)");
                     });
                 }
             });
@@ -271,11 +280,11 @@ namespace MCS_Extractor
                 }
             }
         }
-
-     
     }
 
-
+    /**
+     * Wrapping type for the UI to display row data.
+     **/
     public class MappingType
     {
             public MappingType()
