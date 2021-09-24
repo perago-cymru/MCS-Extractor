@@ -28,42 +28,53 @@ namespace MCS_Extractor
             InitializeComponent();
         }
 
-        private void CreateDatabaseButton_Click(object sender, RoutedEventArgs e)
+        private async void CreateDatabaseButton_Click(object sender, RoutedEventArgs e)
         {
             CreateDatabaseButton.IsEnabled = false;
             var username = PGUsername.Text;
             var password = PGPassword.Text;
-            var config = new ConfigurationChanged();
-            config.SetDatabaseCredentials(username, password);
-            var start = new StartupCheck();
-            var result = !start.FirstRun;
-            if (!result)
+            await Task.Run(() =>
             {
-               
-                var dataCreator = new DatabaseCreation(ConfigurationManager.AppSettings["ConnectionString"]);
-                result = dataCreator.RunSQLFileFromPath(CSVFileHandler.GetInstallFolder() + "\\sql\\database.sql");
-                if (0 < dataCreator.Log.Count)
+
+                var config = new ConfigurationChanged();
+                config.SetDatabaseCredentials(username, password);
+                var start = new StartupCheck();
+                var result = !start.FirstRun;
+                if (!result)
                 {
-                    foreach (var l in dataCreator.Log)
+
+                    var dataCreator = new DatabaseCreation(ConfigurationManager.AppSettings["ConnectionString"]);
+                    result = dataCreator.RunSQLFileFromPath(CSVFileHandler.GetInstallFolder() + "\\sql\\database.sql");
+                    if (0 < dataCreator.Log.Count)
                     {
-                        Debug.WriteLine(l);
+                        foreach (var l in dataCreator.Log)
+                        {
+                            Debug.WriteLine(l);
+                        }
+                    }
+                    if (result)
+                    {
+                        result = OdbcCreation.CreateODBC(String.Format("{0};Database={1}", ConfigurationManager.AppSettings["ConnectionString"], ConfigurationManager.AppSettings["DatabaseName"]));
                     }
                 }
                 if (result)
                 {
-                    result = OdbcCreation.CreateODBC(String.Format("{0};Database={1}", ConfigurationManager.AppSettings["ConnectionString"], ConfigurationManager.AppSettings["DatabaseName"]));
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        var mw = new MainWindow();
+                        mw.Show();
+                        this.Hide();
+                    });
                 }
-            }
-            if ( result )
-            {
-                var mw = new MainWindow();
-                mw.Show();
-                this.Hide();
-            } else
-            {
-                MessageBox.Show("There was a problem configuring the database, please check that PostgreSQL is enabled and your credentials are correct.");
-                CreateDatabaseButton.IsEnabled = false;
-            }
+                else
+                {
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        MessageBox.Show("There was a problem configuring the database, please check that PostgreSQL is enabled and your credentials are correct.");
+                        CreateDatabaseButton.IsEnabled = true;
+                    });
+                }
+            });
         }
     }
 }
