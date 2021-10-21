@@ -1,6 +1,6 @@
 # The MCS Data Extractor
 
-This tool is designed to facilitate importing data exported in CSV format from the MyCouncilServices platform. The tool is built to be a lightweight shell to import CSV data into PostgreSQL. It maintains itself through configuration, largely stored in the database.
+This tool is designed to facilitate importing data exported in CSV format from the MyCouncilServices platform. The tool is built to be a lightweight shell to import CSV data into PostgreSQL. It maintains itself through configuration, largely stored in the database. The project is released under an MIT license.
 
 ## Installation 
 
