@@ -9,7 +9,7 @@
 		<Package 
         Id="*" Description="Installer package for the My Council Services Extractor tool"
         InstallerVersion="200" Compressed="yes" InstallScope="perMachine"  />
-    <WixVariable Id="WixUILicenseRtf" Value="gpl-3.0.rtf" />
+    <WixVariable Id="WixUILicenseRtf" Value="mit.rtf" />
 		<MajorUpgrade DowngradeErrorMessage="A newer version of MCS Extractor is already installed." />
 		<MediaTemplate />
 

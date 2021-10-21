@@ -16,8 +16,6 @@ namespace MCS_Extractor.FirstRun
             Debug.WriteLine("Create Postgres ODBC connection");
             var result = false;
             var split = connectionString.Split(';');
-            var build = new StringBuilder();
-            var comma = "";
             var propertyValues = new List<String>();
             foreach ( string s in split )
             {
@@ -28,9 +26,8 @@ namespace MCS_Extractor.FirstRun
                     {
                         parts[0] = "Server";
                     }
-                    build.AppendFormat("{0}\"{1}={2}\"", comma, parts[0], parts[1]);
+
                     propertyValues.Add(String.Format("{0}={1}", parts[0], parts[1]));
-                    comma = ", ";
                 }
             }
            // var psCommand = String.Format("Add-OdbcDsn -Name \"MCS-Extractor-Install\" -DriverName \"PostgreSQL Unicode\" -DsnType \"user\" -SetPropertyValue @({0})", build.ToString());
