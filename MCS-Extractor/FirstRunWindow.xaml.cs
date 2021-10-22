@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -56,6 +57,7 @@ namespace MCS_Extractor
                     {
                         result = OdbcCreation.CreateODBC(String.Format("{0};Database={1}", ConfigurationManager.AppSettings["ConnectionString"], ConfigurationManager.AppSettings["DatabaseName"]));
                     }
+                    CheckForDataDirectory();
                 }
                 if (result)
                 {
@@ -75,6 +77,15 @@ namespace MCS_Extractor
                     });
                 }
             });
+        }
+
+        private void CheckForDataDirectory()
+        {
+            var datadir = System.IO.Path.Combine(CSVFileHandler.GetInstallFolder(), ConfigurationManager.AppSettings["DataDirectory"]);
+            if ( !Directory.Exists(datadir))
+            {
+                Directory.CreateDirectory(datadir);
+            }
         }
     }
 }
