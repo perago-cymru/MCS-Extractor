@@ -17,7 +17,7 @@ namespace MCS_Extractor.FirstRun.Postgres
         public bool FirstRun()
         {
             var dataCreator = new PostgresDatabaseCreation(ConfigurationManager.AppSettings["ConnectionString"]);
-            var result = dataCreator.RunSQLFileFromPath(CSVFileHandler.GetInstallFolder() + "\\sql\\database.sql");
+            var result = dataCreator.RunSQLFileFromPath(CSVFileHandler.GetInstallFolder() + "\\sql\\postgres\\database.sql");
             if (0 < dataCreator.Log.Count)
             {
                 foreach (var l in dataCreator.Log)

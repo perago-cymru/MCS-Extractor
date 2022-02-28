@@ -152,7 +152,7 @@ namespace MCS_Extractor.ImportedData.Postgres
 
         private void RunTemplateScript(TableSummary summary, bool openConnection = true)
         {
-            var reader = new StreamReader(CSVFileHandler.GetInstallFolder() + "\\sql\\template.sql");
+            var reader = new StreamReader(CSVFileHandler.GetInstallFolder() + "\\sql\\postgres\\template.sql");
             var statement = reader.ReadToEnd();
             reader.Close();
 
