@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using MCS_Extractor.FirstRun;
+using MCS_Extractor.FirstRun.Postgres;
 
 namespace MCS_Extractor
 {
@@ -20,9 +21,14 @@ namespace MCS_Extractor
             FirstRunHandler first = new FirstRunHandler();
             if (first.IsFirstRun)
             {
-                var firstRun = new FirstRunWindow();
-                //firstRun.Owner = this;
-                firstRun.Show();
+                switch (first.Platform) {
+                        case "postgres": 
+                        var firstRun = new PostgresFirstRunWindow();
+                    //firstRun.Owner = this;
+                    firstRun.Show();
+                            break;
+                    default: throw new Exception("Cannot find a platform window matching " + first.Platform); 
+                }
             } else
             {
                 var main = new MainWindow();

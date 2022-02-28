@@ -17,17 +17,17 @@ namespace MCS_Extractor.FirstRun
     {
         private IStartupCheck startup;
 
-        private string platform;
+        public string Platform { get; private set; }
 
         public FirstRunHandler()
         {
-            platform = ConfigurationManager.AppSettings["DatabasePlatform"].ToLower();
-            switch (platform)
+            Platform = ConfigurationManager.AppSettings["DatabasePlatform"].ToLower();
+            switch (Platform)
             {
                 case "postgres": startup = new PostgresStartupCheck();
                     break;
                 default:
-                    throw new Exception(String.Format("Could not find startup check for platform {0}", platform));
+                    throw new Exception(String.Format("Could not find startup check for platform {0}", Platform));
                     break;
             }
         }
@@ -49,11 +49,11 @@ namespace MCS_Extractor.FirstRun
             bool result = false;
             if ( startup != null && startup.FirstRun )
             {
-                switch (platform)
+                switch (Platform)
                 {
                     case "postgres": first = new PostgresFirstRunProcess();
                         break;
-                    default: throw new Exception(String.Format("Could not find first run process for platform {0}", platform));
+                    default: throw new Exception(String.Format("Could not find first run process for platform {0}", Platform));
                         break;
                 }
                 if ( first != null)

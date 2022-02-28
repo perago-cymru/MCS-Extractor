@@ -16,15 +16,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MCS_Extractor.FirstRun;
 using MCS_Extractor.ImportedData;
+using MCS_Extractor;
 
-namespace MCS_Extractor
+namespace MCS_Extractor.FirstRun.Postgres
 {
     /// <summary>
     /// Interaction logic for FirstRunWindow.xaml
     /// </summary>
-    public partial class FirstRunWindow : Window
+    public partial class PostgresFirstRunWindow : Window
     {
-        public FirstRunWindow()
+        public PostgresFirstRunWindow()
         {
             InitializeComponent();
         }
