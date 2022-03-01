@@ -7,15 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Npgsql;
 
-namespace MCS_Extractor.FirstRun
+namespace MCS_Extractor.FirstRun.Postgres
 {
-    class DatabaseCreation
+    class PostgresDatabaseCreation
     {
         private string connectionString;
 
         public List<string> Log { get; set; }
 
-        public DatabaseCreation(string connectionString)
+        public PostgresDatabaseCreation(string connectionString)
         {
             this.connectionString = connectionString;
             Log = new List<string>();

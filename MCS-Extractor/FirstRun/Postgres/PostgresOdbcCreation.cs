@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 
-namespace MCS_Extractor.FirstRun
+namespace MCS_Extractor.FirstRun.Postgres
 {
-    class OdbcCreation
+    class PostgresOdbcCreation
     {
         public static bool CreateODBC(string connectionString)
         {

@@ -135,17 +135,29 @@
       <DependentUpon>FirstRunWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="FirstRun\ConfigurationChanged.cs" />
-    <Compile Include="FirstRun\DatabaseCreation.cs" />
-    <Compile Include="FirstRun\OdbcCreation.cs" />
-    <Compile Include="FirstRun\StartupCheck.cs" />
+    <Compile Include="FirstRun\FirstRunHandler.cs" />
+    <Compile Include="FirstRun\Interfaces\IFirstRunProcess.cs" />
+    <Compile Include="FirstRun\Postgres\PostgresDatabaseCreation.cs" />
+    <Compile Include="FirstRun\Interfaces\IStartupCheck.cs" />
+    <Compile Include="FirstRun\Postgres\PostgresFirstRunProcess.cs" />
+    <Compile Include="FirstRun\Postgres\PostgresOdbcCreation.cs" />
+    <Compile Include="FirstRun\Postgres\PostgresStartupCheck.cs" />
     <Compile Include="ImportedData\CSVFileHandler.cs" />
     <Compile Include="ImportedData\CSVImporter.cs" />
+    <Compile Include="ImportedData\CSVMappingFactory.cs" />
     <Compile Include="ImportedData\CSVSummary.cs" />
     <Compile Include="ImportedData\DataMappingType.cs" />
-    <Compile Include="ImportedData\DataMapping.cs" />
+    <Compile Include="ImportedData\Interfaces\IMappingLoader.cs" />
+    <Compile Include="ImportedData\Interfaces\ICSVImporter.cs" />
+    <Compile Include="ImportedData\Interfaces\ITableHandler.cs" />
+    <Compile Include="ImportedData\Postgres\PostgresCSVImporter.cs" />
+    <Compile Include="ImportedData\Postgres\PostgresDataMapping.cs" />
+    <Compile Include="ImportedData\Interfaces\IDataMappingType.cs" />
     <Compile Include="ImportedData\MappingCreator.cs" />
-    <Compile Include="ImportedData\MappingLoader.cs" />
-    <Compile Include="ImportedData\TableHandler.cs" />
+    <Compile Include="ImportedData\Postgres\PostgresDataMappingType.cs" />
+    <Compile Include="ImportedData\Postgres\PostgresMappingLoader.cs" />
+    <Compile Include="ImportedData\Postgres\PostgresMappingCreator.cs" />
+    <Compile Include="ImportedData\Postgres\PostgresTableHandler.cs" />
     <Compile Include="ImportedData\TableSummary.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -180,10 +192,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Sql\database.sql">
+    <None Include="Sql\postgres\database.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Sql\template.sql">
+    <None Include="Sql\postgres\template.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -205,5 +217,6 @@
   <ItemGroup>
     <Resource Include="license.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

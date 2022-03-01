@@ -7,10 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Npgsql;
 using NpgsqlTypes;
+using MCS_Extractor.ImportedData.Interfaces;
 
-namespace MCS_Extractor.ImportedData
+namespace MCS_Extractor.ImportedData.Postgres
 {
-    public class MappingLoader
+    public class PostgresMappingLoader : IMappingLoader
     {
 
         private const string mappingTable = "csv_table_mappings";
@@ -19,30 +20,30 @@ namespace MCS_Extractor.ImportedData
 
         private NpgsqlConnection connection;
 
-        private Dictionary<String, Func<string, string, DataMappingType>> typeLookup = new Dictionary<string, Func<string, string, DataMappingType>> {
-            {  NpgsqlDbType.Boolean.ToString(), (a, b) => new DataMapping<bool>(a, b, NpgsqlDbType.Boolean) },
-            {  NpgsqlDbType.Varchar.ToString(), (a, b) => new DataMapping<string>(a, b, NpgsqlDbType.Varchar) },
-            { NpgsqlDbType.Integer.ToString(), (a, b) => new DataMapping<int>(a, b, NpgsqlDbType.Integer) },
-            {  NpgsqlDbType.Bigint.ToString(), (a, b) => new DataMapping<long>(a, b, NpgsqlDbType.Bigint) },
-            {  NpgsqlDbType.Text.ToString(), (a, b) => new DataMapping<string>(a, b, NpgsqlDbType.Text) },
-            { NpgsqlDbType.Double.ToString(), (a, b) => new DataMapping<decimal>(a, b, NpgsqlDbType.Numeric) },
-            { NpgsqlDbType.Numeric.ToString(), (a, b) => new DataMapping<decimal>(a, b, NpgsqlDbType.Numeric) },
-            { NpgsqlDbType.Date.ToString(), (a, b) => new DataMapping<DateTime>(a, b,NpgsqlDbType.Date) }
+        private Dictionary<String, Func<string, string, PostgresDataMappingType>> typeLookup = new Dictionary<string, Func<string, string, PostgresDataMappingType>> {
+            {  NpgsqlDbType.Boolean.ToString(), (a, b) => new PostgresDataMapping<bool>(a, b, NpgsqlDbType.Boolean) },
+            {  NpgsqlDbType.Varchar.ToString(), (a, b) => new PostgresDataMapping<string>(a, b, NpgsqlDbType.Varchar) },
+            { NpgsqlDbType.Integer.ToString(), (a, b) => new PostgresDataMapping<int>(a, b, NpgsqlDbType.Integer) },
+            {  NpgsqlDbType.Bigint.ToString(), (a, b) => new PostgresDataMapping<long>(a, b, NpgsqlDbType.Bigint) },
+            {  NpgsqlDbType.Text.ToString(), (a, b) => new PostgresDataMapping<string>(a, b, NpgsqlDbType.Text) },
+            { NpgsqlDbType.Double.ToString(), (a, b) => new PostgresDataMapping<decimal>(a, b, NpgsqlDbType.Numeric) },
+            { NpgsqlDbType.Numeric.ToString(), (a, b) => new PostgresDataMapping<decimal>(a, b, NpgsqlDbType.Numeric) },
+            { NpgsqlDbType.Date.ToString(), (a, b) => new PostgresDataMapping<DateTime>(a, b,NpgsqlDbType.Date) }
         };
 
 
-        public MappingLoader()
+        public PostgresMappingLoader()
         {
-            connection = CSVImporter.GetConnection();
+            connection = PostgresCSVImporter.GetConnection();
         }
 
-        public List<DataMappingType> GetMappings(string tableName)
+        public List<IDataMappingType> GetMappings(string tableName)
         {
             connection.Open();
             var cmd = new NpgsqlCommand("SELECT * FROM " + mappingTable + " WHERE table_name = @tn", connection);
             cmd.Parameters.AddWithValue("tn", tableName);
             var response = cmd.ExecuteReader();
-            var result = new List<DataMappingType>();
+            var result = new List<PostgresDataMappingType>();
             if (response.HasRows )
             {
                 int csvNameOrd = response.GetOrdinal("csv_name");
@@ -54,18 +55,19 @@ namespace MCS_Extractor.ImportedData
                 }
             }
             connection.Close();
-            return result;
+            return result.Cast<IDataMappingType>().ToList();
         }
 
-        public void SaveMappings(TableSummary summary, List<DataMappingType> mappings)
+        public void SaveMappings(TableSummary summary, List<IDataMappingType> mappings)
         {
+            var mapList = mappings.Select(x => x as PostgresDataMappingType).ToList<PostgresDataMappingType>();
             if (!TableExists(summary.TableName))
             {
                 connection.Open();
                 var tran = connection.BeginTransaction();
-                CreateTable(summary, mappings, false);
+                CreateTable(summary, mapList, false);
                 RunTemplateScript(summary, false);
-                InsertMappings(summary.TableName, mappings, false);
+                InsertMappings(summary.TableName, mapList, false);
                 tran.Commit();
                 connection.Close();
             }
@@ -119,7 +121,7 @@ namespace MCS_Extractor.ImportedData
             return 0 < result;
         }
 
-        private void CreateTable(TableSummary summary, List<DataMappingType> mappings, bool openConnection = true)
+        private void CreateTable(TableSummary summary, List<PostgresDataMappingType> mappings, bool openConnection = true)
         {
             var table = new StringBuilder("CREATE TABLE ");
             table.AppendFormat("{0} ( ", summary.TableName);
@@ -192,14 +194,14 @@ namespace MCS_Extractor.ImportedData
 
         }
   
-        private void InsertMappings(string tableName, List<DataMappingType> mappings, bool openConnection = true)
+        private void InsertMappings(string tableName, List<PostgresDataMappingType> mappings, bool openConnection = true)
         {
             if (openConnection)
             {
                 connection.Open();
             }
             var cmd = new NpgsqlCommand("INSERT INTO " + mappingTable + " (table_name, csv_name, db_name, type_name) VALUES ( @tn, @csv, @db, @tp )", connection);
-            foreach( DataMappingType mp in mappings )
+            foreach(PostgresDataMappingType mp in mappings )
             {
                 cmd.Parameters.Clear();
                 cmd.Parameters.AddWithValue("tn", tableName);

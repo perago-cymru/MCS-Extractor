@@ -5,21 +5,22 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MCS_Extractor.ImportedData.Interfaces;
 using Npgsql;
 
-namespace MCS_Extractor.ImportedData
+namespace MCS_Extractor.ImportedData.Postgres
 {
-    public class TableHandler
+    public class PostgresTableHandler : ITableHandler
     {
 
         private string tableName;
 
         private NpgsqlConnection connection;
 
-        public TableHandler(string tableName)
+        public PostgresTableHandler(string tableName)
         {
             this.tableName = tableName;
-            connection = CSVImporter.GetConnection();
+            connection = PostgresCSVImporter.GetConnection();
         }
 
         public bool TableExists()
@@ -29,7 +30,7 @@ namespace MCS_Extractor.ImportedData
             return result;
         }
 
-        public bool CreateTable(string tableTitle, List<DataMappingType> mappings)
+        public bool CreateTable(string tableTitle, List<IDataMappingType> mappings)
         {
             if ( mappings.Count == 0 )
             {
@@ -40,7 +41,7 @@ namespace MCS_Extractor.ImportedData
             statement.AppendFormat("CREATE TABLE IF NOT EXISTS `public.{0}` (");
             statement.AppendLine("id serial,");
             statement.AppendLine("created_at timestamp NOT NULL DEFAULT now()");
-            foreach ( DataMappingType tp in mappings )
+            foreach ( PostgresDataMappingType tp in mappings )
             {
                 statement = AppendMapping(statement, tp);
             }
@@ -67,7 +68,7 @@ namespace MCS_Extractor.ImportedData
             return result;
         }
 
-        private StringBuilder AppendMapping(StringBuilder create, DataMappingType mapping)
+        private StringBuilder AppendMapping(StringBuilder create, PostgresDataMappingType mapping)
         {
             create.AppendLine(", ");
             create.Append(mapping.DatabaseFieldName);

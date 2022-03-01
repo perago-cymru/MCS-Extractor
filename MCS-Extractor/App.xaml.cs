@@ -17,8 +17,8 @@ namespace MCS_Extractor
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            StartupCheck check = new StartupCheck();
-            if (check.FirstRun)
+            FirstRunHandler first = new FirstRunHandler();
+            if (first.IsFirstRun)
             {
                 var firstRun = new FirstRunWindow();
                 //firstRun.Owner = this;
