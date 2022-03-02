@@ -119,7 +119,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="ImportedData\Postgres\FirstRunWindow.xaml">
+    <Compile Include="SelectDatabase.xaml.cs">
+      <DependentUpon>SelectDatabase.xaml</DependentUpon>
+    </Compile>
+    <Page Include="FirstRun\Microsoft\MicrosoftFirstRunWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FirstRun\Postgres\PostgresFirstRunWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -131,8 +138,13 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ImportedData\Postgres\FirstRunWindow.xaml.cs">
-      <DependentUpon>FirstRunWindow.xaml</DependentUpon>
+    <Compile Include="FirstRun\Microsoft\MsFirstRunProcess.cs" />
+    <Compile Include="FirstRun\Microsoft\MsStartupCheck.cs" />
+    <Compile Include="FirstRun\Microsoft\MicrosoftFirstRunWindow.xaml.cs">
+      <DependentUpon>MicrosoftFirstRunWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FirstRun\Postgres\PostgresFirstRunWindow.xaml.cs">
+      <DependentUpon>PostgresFirstRunWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="FirstRun\ConfigurationChanged.cs" />
     <Compile Include="FirstRun\FirstRunHandler.cs" />
@@ -163,6 +175,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="SelectDatabase.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -217,6 +233,8 @@
   <ItemGroup>
     <Resource Include="license.txt" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="ImportedData\Microsoft\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

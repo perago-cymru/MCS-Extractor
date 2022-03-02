@@ -1,0 +1,88 @@
+
+CREATE TABLE IF NOT EXISTS csv_index_fields
+(
+    id NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    table_name varchar(50) NOT NULL,
+    index_field varchar(50) ,
+    start_field varchar(50) ,
+    close_field varchar(50) ,
+    unique_identifier varchar(255) ,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS csv_table_mappings
+(
+    id NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    csv_name varchar(255)  NOT NULL,
+    db_name varchar(255)  NOT NULL,
+    table_name varchar(75)  NOT NULL,
+    type_name varchar(50)  NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS loaded_files
+(
+    id NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    loaded timestamp without time zone NOT NULL DEFAULT now(),
+    filename varchar(255) NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS table_metadata
+(
+    id NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    user_facing_title varchar(255)  NOT NULL,
+    table_name varchar(65) NOT NULL,
+     PRIMARY KEY (id)
+);
+
+CREATE FUNCTION public.fiscal_quarter(@dt datetime)
+    RETURNS varchar
+AS
+BEGIN
+declare @dateYear INT;
+declare @quarter INT;
+declare @startYear INT;
+declare @endYear INT;
+
+  @dateYear = YEAR( @dt );
+  @quarter = DATEPART('q', @dt);
+  @startYear = @dateYear;
+  endYear := dateYear+1;
+  if ( quarter = 1 ) then
+     startYear := startYear-1;
+	 endYear := dateYear;
+  end if;
+  quarter := quarter-1;
+  if ( quarter = 0 ) then
+   	quarter := 4;
+  end if;
+  RETURN CONCAT(startYear, '-', endYear, '-Q', quarter);
+END
+
+CREATE OR REPLACE FUNCTION public.fiscal_year(
+	dt timestamp without time zone)
+    RETURNS varchar
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+   dateYear INT;
+   quarter INT;
+   startYear INT;
+   endYear INT;
+begin
+  dateYear := EXTRACT( YEAR from dt );
+  quarter := EXTRACT(QUARTER from dt);
+  startYear := dateYear;
+  endYear := dateYear+1;
+  if ( quarter = 1 ) then
+     startYear := startYear-1;
+	 endYear := dateYear;
+  end if;
+
+  RETURN CONCAT(startYear, '-', endYear);
+end;
+$BODY$;
+

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MCS_Extractor.FirstRun.Interfaces;
 using MCS_Extractor.FirstRun.Postgres;
+using MCS_Extractor.FirstRun.Microsoft;
 
 namespace MCS_Extractor.FirstRun
 {
@@ -25,6 +26,8 @@ namespace MCS_Extractor.FirstRun
             switch (Platform)
             {
                 case "postgres": startup = new PostgresStartupCheck();
+                    break;
+                case "mssql": startup = new MsStartupCheck();
                     break;
                 default:
                     throw new Exception(String.Format("Could not find startup check for platform {0}", Platform));

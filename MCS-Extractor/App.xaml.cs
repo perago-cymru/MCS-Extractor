@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using MCS_Extractor.FirstRun;
 using MCS_Extractor.FirstRun.Postgres;
+using MCS_Extractor.FirstRun.Microsoft;
 
 namespace MCS_Extractor
 {
@@ -27,7 +28,13 @@ namespace MCS_Extractor
                     //firstRun.Owner = this;
                     firstRun.Show();
                             break;
-                    default: throw new Exception("Cannot find a platform window matching " + first.Platform); 
+                    case "mssql":
+                        var msRun = new MicrosoftFirstRunWindow();
+                        msRun.Show();
+                        break;
+                    default: var chooseRun = new SelectDatabaseWindow();
+                        chooseRun.Show();
+                        break;
                 }
             } else
             {
