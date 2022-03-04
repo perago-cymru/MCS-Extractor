@@ -8,11 +8,11 @@
         Title="First Run" Height="300" Width="500">
     <Grid>
         <TextBlock  HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="472" Height="35" Cursor="None" TextWrapping="Wrap" >This appears to be your first run of the MCS Extractor so we need to set up your database connection. What database platform do you plan to use?</TextBlock>
-        <ComboBox Name="DatabasePlatform" HorizontalAlignment="Left" Margin="10,62,0,0" VerticalAlignment="Top" Width="390" >
+        <ComboBox Name="DatabasePlatform" HorizontalAlignment="Left" Margin="10,62,0,0" VerticalAlignment="Top" Width="381" >
             <ComboBoxItem Name="postgres">PostgreSQL</ComboBoxItem>
             <ComboBoxItem Name="mssql">Microsoft SQL Server</ComboBoxItem>
         </ComboBox>
-        <Button Name="SetDatabase" Content="Configure" HorizontalAlignment="Left" Margin="407,62,0,0" VerticalAlignment="Top" Width="75" Click="SetDatabase_Click"/>
+        <Button Name="SetDatabase" Content="Configure" Margin="396,62,20,0" VerticalAlignment="Top" Click="SetDatabase_Click"/>
 
     </Grid>
 </Window>

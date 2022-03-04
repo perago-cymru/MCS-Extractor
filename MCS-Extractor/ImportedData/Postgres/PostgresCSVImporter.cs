@@ -133,7 +133,7 @@ namespace MCS_Extractor.ImportedData.Postgres
 
         private void SetUniqueField(string tableName, NpgsqlConnection connection)
         {
-            var summary = TableSummary.LoadFromDatabase(connection, tableName);
+            var summary = LoadTableSummary(connection, tableName);
             if (1 < summary.UserIdentifierFields.Length)
             {
                 var query = new StringBuilder(String.Format("UPDATE {0} areq SET {1} =  ", tableName, summary.UserIdentifier));
@@ -204,6 +204,47 @@ namespace MCS_Extractor.ImportedData.Postgres
         {
             var connectionString = String.Format("{0}Database={1}", ConfigurationManager.AppSettings["ConnectionString"], ConfigurationManager.AppSettings["DatabaseName"]);
             return new NpgsqlConnection(connectionString);
+        }
+
+        public static TableSummary LoadTableSummary(NpgsqlConnection connection, string tableName, bool openConnection = true)
+        {
+            var command = new NpgsqlCommand("SELECT * FROM csv_index_fields WHERE table_name= @tb", connection);
+            command.Parameters.AddWithValue("tb", tableName);
+            if (openConnection)
+            {
+                connection.Open();
+            }
+            try
+            {
+                var reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    var result = new TableSummary()
+                    {
+                        Id = (int)reader["id"],
+                        TableName = tableName,
+                        StartField = (string)reader["start_field"],
+                        CloseField = (string)reader["close_field"],
+                        IdField = (string)reader["index_field"],
+                        UserIdentifierFields = ((string)reader["unique_identifier"]).Split('_')
+                    };
+
+                    return result;
+                }
+                else
+                {
+                    throw new Exception("Could not find a summary for " + tableName);
+                }
+            }
+            finally
+            {
+                if (openConnection)
+                {
+                    connection.Close();
+                }
+            }
+
         }
     }
 }

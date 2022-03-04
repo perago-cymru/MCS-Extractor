@@ -30,14 +30,14 @@ namespace MCS_Extractor.FirstRun
                 case "mssql": startup = new MsStartupCheck();
                     break;
                 default:
-                    throw new Exception(String.Format("Could not find startup check for platform {0}", Platform));
+                    Debug.WriteLine(String.Format("Could not find startup check for platform {0}", Platform));
                     break;
             }
         }
 
         public bool IsFirstRun {
             get {
-                bool isFirst = false;
+                bool isFirst = true;
                 if (startup != null)
                 {
                     isFirst = startup.FirstRun;
@@ -55,6 +55,8 @@ namespace MCS_Extractor.FirstRun
                 switch (Platform)
                 {
                     case "postgres": first = new PostgresFirstRunProcess();
+                        break;
+                    case "mssql": first = new MsFirstRunProcess();
                         break;
                     default: throw new Exception(String.Format("Could not find first run process for platform {0}", Platform));
                         break;

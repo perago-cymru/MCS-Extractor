@@ -10,10 +10,11 @@ using System.Configuration;
 using Npgsql;
 using NpgsqlTypes;
 using CsvHelper;
+using MCS_Extractor.ImportedData.Interfaces;
 
 namespace MCS_Extractor.ImportedData
 {
-    public class CSVImporter
+    public class CSVImporter 
     {
 
         protected CSVSummary lastSummary = new CSVSummary();
@@ -62,7 +63,7 @@ namespace MCS_Extractor.ImportedData
                             csv.ReadHeader();
                             result.Headers.AddRange(csv.HeaderRecord);
                             int count = 0;
-                            while (csv.Read() && count < 50)
+                            while (csv.Read() && count < 150)
                             {
                                 var ls = new List<string>();
                                 foreach (string head in csv.HeaderRecord)
@@ -71,8 +72,9 @@ namespace MCS_Extractor.ImportedData
 
                                 }
                                 result.Values.Add(ls);
+                                count++;
                             }
-                            result.Empty = false;
+                            result.Empty = count == 0;
                         }
                     } catch ( Exception ef )
                     {

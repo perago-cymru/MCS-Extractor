@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MCS_Extractor.ImportedData.Interfaces;
 using MCS_Extractor.ImportedData.Postgres;
+using MCS_Extractor.ImportedData.Microsoft;
 
 namespace MCS_Extractor.ImportedData
 {
@@ -27,6 +28,10 @@ namespace MCS_Extractor.ImportedData
                     Loader = new PostgresMappingLoader();
                     Creator = new PostgresMappingCreator();
                     break;
+                case "mssql":
+                    Loader = new MicrosoftMappingLoader();
+                    Creator = new MicrosoftMappingCreator();
+                    break;
                 default:
                     throw new Exception(String.Format("Could not find startup check for platform {0}", platform));
                     break;
@@ -39,24 +44,18 @@ namespace MCS_Extractor.ImportedData
             {
                 case "postgres": return new PostgresCSVImporter(ref reporter);
                     break;
+                case "mssql": return new MicrosoftCSVImporter(ref reporter);
+                    break;
                 default:
                     throw new Exception(String.Format("Could not find csv importer for platform {0}", platform));
                     break;
             }
         }
 
-        public ITableHandler GetTableHandler(string tableName)
-        {
-            switch (platform)
-            {
-                case "postgres":
-                    return new PostgresTableHandler(tableName);
-                    break;
-                default:
-                    throw new Exception(String.Format("Could not find a table handler for platform {0}", platform));
-                    break;
-            }
-        }
+
+        
+
+
 
     }
 }

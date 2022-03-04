@@ -210,11 +210,22 @@ namespace MCS_Extractor
                     }
                     else
                     {
-                        this.Dispatcher.Invoke(() =>
+                        var csMapping = importer.SummariseCSV(files[fn]);
+                        if (!csMapping.Empty)
                         {
-                            ShowMappingForm(files[fn]);
-                        });
-                        break;
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                ShowMappingForm(csMapping);
+                            });
+                            break;
+                        }
+                        else {
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                ImportList.Items.Add(files[fn]);
+                            });
+                        };
+                    
 
                     }
                 }
@@ -230,12 +241,12 @@ namespace MCS_Extractor
 
         }
 
-        private void ShowMappingForm(string fileName)
+        private void ShowMappingForm(CSVSummary csMapping)
         {
-            ImportLabel.Content = "Could not find mapping for " + fileName;
+            ImportLabel.Content = "Could not find mapping for " + csMapping.FileName;
             ImportList.Visibility = Visibility.Collapsed;
             MappingContainer.Visibility = Visibility.Visible;
-            var csMapping = importer.SummariseCSV(fileName);
+           
             MappingGrid.Items.Clear();
             FieldNames.Items.Clear();
             IdentifierFields.Items.Clear();
@@ -278,6 +289,10 @@ namespace MCS_Extractor
                     IdField.Items.Add(m.RowName);
                     FieldNames.Items.Add(m.RowName);
                 }
+            }
+            else
+            {
+
             }
         }
     }

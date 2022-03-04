@@ -119,6 +119,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ImportedData\Microsoft\MicrosoftCSVImporter.cs" />
+    <Compile Include="ImportedData\Microsoft\MicrosoftDataMappingType.cs" />
+    <Compile Include="ImportedData\Microsoft\MicrosoftMappingCreator.cs" />
+    <Compile Include="ImportedData\Microsoft\MicrosoftMappingLoader.cs" />
+    <Compile Include="ImportedData\TableSummary.cs" />
     <Compile Include="SelectDatabase.xaml.cs">
       <DependentUpon>SelectDatabase.xaml</DependentUpon>
     </Compile>
@@ -161,7 +166,6 @@
     <Compile Include="ImportedData\DataMappingType.cs" />
     <Compile Include="ImportedData\Interfaces\IMappingLoader.cs" />
     <Compile Include="ImportedData\Interfaces\ICSVImporter.cs" />
-    <Compile Include="ImportedData\Interfaces\ITableHandler.cs" />
     <Compile Include="ImportedData\Postgres\PostgresCSVImporter.cs" />
     <Compile Include="ImportedData\Postgres\PostgresDataMapping.cs" />
     <Compile Include="ImportedData\Interfaces\IDataMappingType.cs" />
@@ -169,8 +173,6 @@
     <Compile Include="ImportedData\Postgres\PostgresDataMappingType.cs" />
     <Compile Include="ImportedData\Postgres\PostgresMappingLoader.cs" />
     <Compile Include="ImportedData\Postgres\PostgresMappingCreator.cs" />
-    <Compile Include="ImportedData\Postgres\PostgresTableHandler.cs" />
-    <Compile Include="ImportedData\TableSummary.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -234,7 +236,7 @@
     <Resource Include="license.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ImportedData\Microsoft\" />
+    <Content Include="Sql\database.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
