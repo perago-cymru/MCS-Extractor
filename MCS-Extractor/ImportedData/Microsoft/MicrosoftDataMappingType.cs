@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,7 +60,40 @@ namespace MCS_Extractor.ImportedData.Microsoft
         public object Map(string val)
         {
             Type t = FieldTypes[this.type];
-            return Convert.ChangeType(val, t);
+            if (( val.Trim() == "" ) && ( IsNullableType(t))) {
+                return DBNull.Value;
+            }
+            try
+            {
+                return Convert.ChangeType(val, t);
+            } 
+            catch (Exception ef)
+            {
+                Exception newEx = new Exception("Could not convert '" + val.ToString() + "' for "+CSVFieldName+" to " + t.Name, ef);
+                throw newEx;
+            }
+        }
+
+        private static bool IsNullableType(Type t)
+        {
+            switch (Type.GetTypeCode(t))
+            {
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                case TypeCode.DateTime:
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 }
