@@ -34,6 +34,21 @@ namespace MCS_Extractor.FirstRun
             UpdateAppSettings("ConnectionString", connectionString);
         }
 
+        public void SetConnectionString(string newConnect)
+        {
+            UpdateAppSettings("ConnectionString", newConnect);
+        }
+
+        public void SetDatabasePlatform(string newPlatform)
+        {
+            var viablePlatforms = new string[] { "mssql", "postgres" };
+            if ( !viablePlatforms.Contains(newPlatform) )
+            {
+                throw new Exception(String.Format("\"{0}\" is not a valid database platform.", newPlatform));
+            }
+            UpdateAppSettings("DatabasePlatform", newPlatform);
+        }
+
         private void UpdateAppSettings(string theKey, string theValue)
         {
             Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);

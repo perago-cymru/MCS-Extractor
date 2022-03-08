@@ -51,16 +51,16 @@ namespace MCS_Extractor
         {
 
             string tableName = TableName.Text;
+            CSVMappingFactory factory = new CSVMappingFactory();
             if (0 < tableName.Length)
             {
                 if (ValidateSummaryFields())
                 {
                     tableName = MappingCreator.ClearSpacing(tableName);
-
-                    MappingLoader ml = new MappingLoader();
+                    var ml = factory.Loader;
                     if (!ml.TableExists(tableName))
                     {
-                        var creator = new MappingCreator();
+                        var creator = factory.Creator;
                         var identifiers = new List<string>(IdentifierFields.Items.Count);
                         foreach (var item in IdentifierFields.Items)
                         {
@@ -159,7 +159,7 @@ namespace MCS_Extractor
             if (MappingGrid.CurrentCell.IsValid)
             {
                 MappingType row = (MappingType)MappingGrid.CurrentCell.Item;
-                PGType newVal = (PGType)Enum.Parse(typeof(PGType), box.SelectedItem.ToString());
+                DBType newVal = (DBType)Enum.Parse(typeof(DBType), box.SelectedItem.ToString());
                 if (newVal != row.DataType)
                 {
                     row.DataType = newVal;
@@ -210,11 +210,22 @@ namespace MCS_Extractor
                     }
                     else
                     {
-                        this.Dispatcher.Invoke(() =>
+                        var csMapping = importer.SummariseCSV(files[fn]);
+                        if (!csMapping.Empty)
                         {
-                            ShowMappingForm(files[fn]);
-                        });
-                        break;
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                ShowMappingForm(csMapping);
+                            });
+                            break;
+                        }
+                        else {
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                ImportList.Items.Add(files[fn]);
+                            });
+                        };
+                    
 
                     }
                 }
@@ -230,12 +241,12 @@ namespace MCS_Extractor
 
         }
 
-        private void ShowMappingForm(string fileName)
+        private void ShowMappingForm(CSVSummary csMapping)
         {
-            ImportLabel.Content = "Could not find mapping for " + fileName;
+            ImportLabel.Content = "Could not find mapping for " + csMapping.FileName;
             ImportList.Visibility = Visibility.Collapsed;
             MappingContainer.Visibility = Visibility.Visible;
-            var csMapping = importer.SummariseCSV(fileName);
+           
             MappingGrid.Items.Clear();
             FieldNames.Items.Clear();
             IdentifierFields.Items.Clear();
@@ -279,6 +290,10 @@ namespace MCS_Extractor
                     FieldNames.Items.Add(m.RowName);
                 }
             }
+            else
+            {
+
+            }
         }
     }
 
@@ -296,7 +311,7 @@ namespace MCS_Extractor
 
         public string RowName { get; set; }
 
-        public PGType DataType { get; set; }
+        public DBType DataType { get; set; }
 
         public string Example1 { get; set; }
 

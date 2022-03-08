@@ -14,6 +14,7 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -25,8 +26,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <ApplicationVersion>1.1.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -82,14 +82,14 @@
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.6.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.7.1\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Text.Encodings.Web, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Text.Encodings.Web.4.6.0\lib\netstandard2.0\System.Text.Encodings.Web.dll</HintPath>
     </Reference>
-    <Reference Include="System.Text.Json, Version=4.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Text.Json.4.6.0\lib\net461\System.Text.Json.dll</HintPath>
+    <Reference Include="System.Text.Json, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Json.4.7.2\lib\net461\System.Text.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Threading.Channels, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Threading.Channels.4.7.0\lib\netstandard2.0\System.Threading.Channels.dll</HintPath>
@@ -119,7 +119,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="FirstRunWindow.xaml">
+    <Compile Include="ImportedData\Microsoft\MicrosoftCSVImporter.cs" />
+    <Compile Include="ImportedData\Microsoft\MicrosoftDataMappingType.cs" />
+    <Compile Include="ImportedData\Microsoft\MicrosoftMappingCreator.cs" />
+    <Compile Include="ImportedData\Microsoft\MicrosoftMappingLoader.cs" />
+    <Compile Include="ImportedData\TableSummary.cs" />
+    <Compile Include="SelectDatabase.xaml.cs">
+      <DependentUpon>SelectDatabase.xaml</DependentUpon>
+    </Compile>
+    <Page Include="FirstRun\Microsoft\MicrosoftFirstRunWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FirstRun\Postgres\PostgresFirstRunWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -131,26 +143,44 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="FirstRunWindow.xaml.cs">
-      <DependentUpon>FirstRunWindow.xaml</DependentUpon>
+    <Compile Include="FirstRun\Microsoft\MsFirstRunProcess.cs" />
+    <Compile Include="FirstRun\Microsoft\MsStartupCheck.cs" />
+    <Compile Include="FirstRun\Microsoft\MicrosoftFirstRunWindow.xaml.cs">
+      <DependentUpon>MicrosoftFirstRunWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FirstRun\Postgres\PostgresFirstRunWindow.xaml.cs">
+      <DependentUpon>PostgresFirstRunWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="FirstRun\ConfigurationChanged.cs" />
-    <Compile Include="FirstRun\DatabaseCreation.cs" />
-    <Compile Include="FirstRun\OdbcCreation.cs" />
-    <Compile Include="FirstRun\StartupCheck.cs" />
+    <Compile Include="FirstRun\FirstRunHandler.cs" />
+    <Compile Include="FirstRun\Interfaces\IFirstRunProcess.cs" />
+    <Compile Include="FirstRun\Postgres\PostgresDatabaseCreation.cs" />
+    <Compile Include="FirstRun\Interfaces\IStartupCheck.cs" />
+    <Compile Include="FirstRun\Postgres\PostgresFirstRunProcess.cs" />
+    <Compile Include="FirstRun\Postgres\PostgresOdbcCreation.cs" />
+    <Compile Include="FirstRun\Postgres\PostgresStartupCheck.cs" />
     <Compile Include="ImportedData\CSVFileHandler.cs" />
     <Compile Include="ImportedData\CSVImporter.cs" />
+    <Compile Include="ImportedData\CSVMappingFactory.cs" />
     <Compile Include="ImportedData\CSVSummary.cs" />
     <Compile Include="ImportedData\DataMappingType.cs" />
-    <Compile Include="ImportedData\DataMapping.cs" />
+    <Compile Include="ImportedData\Interfaces\IMappingLoader.cs" />
+    <Compile Include="ImportedData\Interfaces\ICSVImporter.cs" />
+    <Compile Include="ImportedData\Postgres\PostgresCSVImporter.cs" />
+    <Compile Include="ImportedData\Postgres\PostgresDataMapping.cs" />
+    <Compile Include="ImportedData\Interfaces\IDataMappingType.cs" />
     <Compile Include="ImportedData\MappingCreator.cs" />
-    <Compile Include="ImportedData\MappingLoader.cs" />
-    <Compile Include="ImportedData\TableHandler.cs" />
-    <Compile Include="ImportedData\TableSummary.cs" />
+    <Compile Include="ImportedData\Postgres\PostgresDataMappingType.cs" />
+    <Compile Include="ImportedData\Postgres\PostgresMappingLoader.cs" />
+    <Compile Include="ImportedData\Postgres\PostgresMappingCreator.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="SelectDatabase.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -180,10 +210,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Sql\database.sql">
+    <None Include="Sql\postgres\database.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Sql\template.sql">
+    <None Include="Sql\postgres\template.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Sql\mssql\database.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -205,5 +238,6 @@
   <ItemGroup>
     <Resource Include="license.txt" />
   </ItemGroup>
+
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

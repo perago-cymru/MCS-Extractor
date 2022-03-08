@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Npgsql;
 
 namespace MCS_Extractor.ImportedData
 {
@@ -22,51 +21,12 @@ namespace MCS_Extractor.ImportedData
 
         public string[] UserIdentifierFields { get; set; }
 
-        public string UserIdentifier {
+        public string UserIdentifier
+        {
             get
             {
-                return String.Join("_", UserIdentifierFields.OrderBy( o => o ).ToArray());
+                return String.Join("_", UserIdentifierFields.OrderBy(o => o).ToArray());
             }
-        }
-
-        public static TableSummary LoadFromDatabase(NpgsqlConnection connection, string tableName, bool openConnection = true )
-        {
-            var command = new NpgsqlCommand("SELECT * FROM csv_index_fields WHERE table_name= @tb", connection);
-            command.Parameters.AddWithValue("tb", tableName);
-            if (openConnection)
-            {
-                connection.Open();
-            }
-            try
-            {
-                var reader = command.ExecuteReader();
-                if (reader.HasRows)
-                {
-                    reader.Read();
-                    var result = new TableSummary()
-                    {
-                        Id = (int)reader["id"],
-                        TableName = tableName,
-                        StartField = (string)reader["start_field"],
-                        CloseField = (string)reader["close_field"],
-                        IdField = (string)reader["index_field"],
-                        UserIdentifierFields = ((string)reader["unique_identifier"]).Split('_')
-                    };
-
-                    return result;
-                }
-                else
-                {
-                    throw new Exception("Could not find a summary for " + tableName);
-                }
-            }
-            finally {
-                if (openConnection)
-                {
-                    connection.Close();
-                }
-            }
-           
         }
     }
 }

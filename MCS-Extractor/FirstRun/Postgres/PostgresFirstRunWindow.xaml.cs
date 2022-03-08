@@ -16,15 +16,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MCS_Extractor.FirstRun;
 using MCS_Extractor.ImportedData;
+using MCS_Extractor;
 
-namespace MCS_Extractor
+namespace MCS_Extractor.FirstRun.Postgres
 {
     /// <summary>
     /// Interaction logic for FirstRunWindow.xaml
     /// </summary>
-    public partial class FirstRunWindow : Window
+    public partial class PostgresFirstRunWindow : Window
     {
-        public FirstRunWindow()
+        public PostgresFirstRunWindow()
         {
             InitializeComponent();
         }
@@ -39,25 +40,14 @@ namespace MCS_Extractor
 
                 var config = new ConfigurationChanged();
                 config.SetDatabaseCredentials(username, password);
-                var start = new StartupCheck();
-                var result = !start.FirstRun;
+                var start = new FirstRunHandler();
+                var result = !start.IsFirstRun;
                 if (!result)
                 {
 
-                    var dataCreator = new DatabaseCreation(ConfigurationManager.AppSettings["ConnectionString"]);
-                    result = dataCreator.RunSQLFileFromPath(CSVFileHandler.GetInstallFolder() + "\\sql\\database.sql");
-                    if (0 < dataCreator.Log.Count)
-                    {
-                        foreach (var l in dataCreator.Log)
-                        {
-                            Debug.WriteLine(l);
-                        }
-                    }
-                    if (result)
-                    {
-                        result = OdbcCreation.CreateODBC(String.Format("{0};Database={1}", ConfigurationManager.AppSettings["ConnectionString"], ConfigurationManager.AppSettings["DatabaseName"]));
-                    }
                     CheckForDataDirectory();
+                    result = start.Run();
+
                 }
                 if (result)
                 {
@@ -72,7 +62,7 @@ namespace MCS_Extractor
                 {
                     this.Dispatcher.Invoke(() =>
                     {
-                        MessageBox.Show("There was a problem configuring the database, please check that PostgreSQL is enabled and your credentials are correct.");
+                        MessageBox.Show("There was a problem configuring the database, please check that the database is enabled and your credentials are correct.");
                         CreateDatabaseButton.IsEnabled = true;
                     });
                 }

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using MCS_Extractor.FirstRun;
+using MCS_Extractor.FirstRun.Postgres;
+using MCS_Extractor.FirstRun.Microsoft;
 
 namespace MCS_Extractor
 {
@@ -17,12 +19,23 @@ namespace MCS_Extractor
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            StartupCheck check = new StartupCheck();
-            if (check.FirstRun)
+            FirstRunHandler first = new FirstRunHandler();
+            if (first.IsFirstRun)
             {
-                var firstRun = new FirstRunWindow();
-                //firstRun.Owner = this;
-                firstRun.Show();
+                switch (first.Platform) {
+                        case "postgres": 
+                        var firstRun = new PostgresFirstRunWindow();
+                    //firstRun.Owner = this;
+                    firstRun.Show();
+                            break;
+                    case "mssql":
+                        var msRun = new MicrosoftFirstRunWindow();
+                        msRun.Show();
+                        break;
+                    default: var chooseRun = new SelectDatabaseWindow();
+                        chooseRun.Show();
+                        break;
+                }
             } else
             {
                 var main = new MainWindow();
