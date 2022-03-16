@@ -123,6 +123,7 @@
     <Compile Include="ImportedData\Microsoft\MicrosoftDataMappingType.cs" />
     <Compile Include="ImportedData\Microsoft\MicrosoftMappingCreator.cs" />
     <Compile Include="ImportedData\Microsoft\MicrosoftMappingLoader.cs" />
+    <Compile Include="ImportedData\ScriptParsingMappingLoader.cs" />
     <Compile Include="ImportedData\TableSummary.cs" />
     <Compile Include="SelectDatabase.xaml.cs">
       <DependentUpon>SelectDatabase.xaml</DependentUpon>
@@ -238,6 +239,8 @@
   <ItemGroup>
     <Resource Include="license.txt" />
   </ItemGroup>
-
+  <ItemGroup>
+    <Content Include="Sql\mssql\template.sql" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

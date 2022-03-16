@@ -214,7 +214,7 @@ namespace MCS_Extractor.ImportedData.Microsoft
                     }
                     else
                     {
-                        query.Append(" || '-' || ");
+                        query.Append(" + '-' + ");
                     }
                     query.AppendFormat("b.{0}", field);
                 }

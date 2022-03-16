@@ -8,7 +8,7 @@ using MCS_Extractor.ImportedData.Interfaces;
 
 namespace MCS_Extractor.ImportedData.Microsoft
 {
-    public class MicrosoftMappingLoader : IMappingLoader
+    public class MicrosoftMappingLoader : ScriptParsingMappingLoader
     {
         private const string mappingTable = "csv_table_mappings";
 
@@ -31,7 +31,7 @@ namespace MCS_Extractor.ImportedData.Microsoft
             connection = MicrosoftCSVImporter.GetConnection();
         }
 
-        public bool TableExists(string tableName)
+        public override bool TableExists(string tableName)
         {
             connection.Open();
             var cmd = new SqlCommand("SELECT count(id) FROM csv_table_mappings WHERE table_name = @tb", connection);
@@ -41,7 +41,7 @@ namespace MCS_Extractor.ImportedData.Microsoft
             return 0 < result;
         }
 
-        public string FindTableByHeaders(List<string> csvHeaders)
+        public override string FindTableByHeaders(List<string> csvHeaders)
         {
             var query = new StringBuilder("SELECT matches.table_name, count(distinct matches.id) as match_rows, count(distinct equivalent.id) as total_rows ");
             query.Append(" FROM csv_table_mappings matches  LEFT JOIN csv_table_mappings equivalent on matches.table_name = equivalent.table_name ");
@@ -71,7 +71,7 @@ namespace MCS_Extractor.ImportedData.Microsoft
             return result;
         }
 
-        public List<IDataMappingType> GetMappings(string tableName)
+        public override List<IDataMappingType> GetMappings(string tableName)
         {
             connection.Open();
             var cmd = new SqlCommand("SELECT * FROM csv_table_mappings WHERE table_name = @tn", connection);
@@ -93,7 +93,7 @@ namespace MCS_Extractor.ImportedData.Microsoft
             return result.Cast<IDataMappingType>().ToList();
         }
 
-        public void SaveMappings(TableSummary summary, List<IDataMappingType> mappings)
+        public override void SaveMappings(TableSummary summary, List<IDataMappingType> mappings)
         {
             var mapList = mappings.Select(x => x as MicrosoftDataMappingType).ToList<MicrosoftDataMappingType>();
             if (!TableExists(summary.TableName))
@@ -101,8 +101,8 @@ namespace MCS_Extractor.ImportedData.Microsoft
                 connection.Open();
                 var tran = connection.BeginTransaction();
                 CreateTable(summary, mapList, tran);
-                //   RunTemplateScript(summary, false);
-                SaveSummary(summary, tran);
+                RunTemplateScript(summary, tran);
+
                 InsertMappings(summary.TableName, mapList, tran);
                 tran.Commit();
                 connection.Close();
@@ -162,6 +162,16 @@ namespace MCS_Extractor.ImportedData.Microsoft
             command.ExecuteNonQuery();
 
 
+        }
+
+        private void RunTemplateScript(TableSummary summary, SqlTransaction tran)
+        {
+            var statement = ParseMappingFile("\\sql\\postgres\\template.sql", summary);
+            var command = new SqlCommand(statement, connection, tran);
+
+            command.ExecuteNonQuery();
+
+            SaveSummary(summary, tran);
         }
 
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +10,7 @@ using MCS_Extractor.ImportedData.Interfaces;
 
 namespace MCS_Extractor.ImportedData.Postgres
 {
-    public class PostgresMappingLoader : IMappingLoader
+    public class PostgresMappingLoader : ScriptParsingMappingLoader
     {
 
         private const string mappingTable = "csv_table_mappings";
@@ -37,7 +36,7 @@ namespace MCS_Extractor.ImportedData.Postgres
             connection = PostgresCSVImporter.GetConnection();
         }
 
-        public List<IDataMappingType> GetMappings(string tableName)
+        public override List<IDataMappingType> GetMappings(string tableName)
         {
             connection.Open();
             var cmd = new NpgsqlCommand("SELECT * FROM " + mappingTable + " WHERE table_name = @tn", connection);
@@ -58,7 +57,7 @@ namespace MCS_Extractor.ImportedData.Postgres
             return result.Cast<IDataMappingType>().ToList();
         }
 
-        public void SaveMappings(TableSummary summary, List<IDataMappingType> mappings)
+        public override void SaveMappings(TableSummary summary, List<IDataMappingType> mappings)
         {
             var mapList = mappings.Select(x => x as PostgresDataMappingType).ToList<PostgresDataMappingType>();
             if (!TableExists(summary.TableName))
@@ -74,7 +73,7 @@ namespace MCS_Extractor.ImportedData.Postgres
 
         }
 
-        public string FindTableByHeaders(List<string> csvHeaders)
+        public override string FindTableByHeaders(List<string> csvHeaders)
         {
 
             var query = new StringBuilder("SELECT matches.table_name, count(distinct matches.id) as match_rows, count(distinct equivalent.id) as total_rows ");
@@ -111,7 +110,7 @@ namespace MCS_Extractor.ImportedData.Postgres
             return result; 
         }
 
-        public bool TableExists(string tableName)
+        public override bool TableExists(string tableName)
         {
             connection.Open();
             var cmd = new NpgsqlCommand("SELECT count(id) FROM " + mappingTable + " WHERE table_name = @tb", connection);
@@ -152,15 +151,7 @@ namespace MCS_Extractor.ImportedData.Postgres
 
         private void RunTemplateScript(TableSummary summary, bool openConnection = true)
         {
-            var reader = new StreamReader(CSVFileHandler.GetInstallFolder() + "\\sql\\postgres\\template.sql");
-            var statement = reader.ReadToEnd();
-            reader.Close();
-
-            statement = statement.Replace("{$table}", summary.TableName);
-            statement = statement.Replace("{$start_date}", summary.StartField);
-            statement = statement.Replace("{$end_date}", summary.CloseField);
-            statement = statement.Replace("{$id}", summary.IdField);
-            statement = statement.Replace("{$identifier}", summary.UserIdentifier );
+            var statement = ParseMappingFile("\\sql\\postgres\\template.sql", summary);
             var command = new NpgsqlCommand(statement, connection);
             if (openConnection)
             {
