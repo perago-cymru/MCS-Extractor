@@ -29,13 +29,6 @@ CREATE TABLE  loaded_files
     filename varchar(255) NOT NULL
 );
 
-CREATE TABLE table_metadata
-(
-    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    user_facing_title varchar(255)  NOT NULL,
-    table_name varchar(65) NOT NULL
-);
-
 GO
 
 CREATE OR ALTER FUNCTION fiscal_quarter(@dt datetime)

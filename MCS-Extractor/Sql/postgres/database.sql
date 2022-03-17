@@ -28,13 +28,6 @@ CREATE TABLE IF NOT EXISTS loaded_files
     PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS table_metadata
-(
-    id SERIAL,
-    user_facing_title character varying(255)  NOT NULL,
-    table_name character varying(65) NOT NULL,
-     PRIMARY KEY (id)
-);
 
 CREATE OR REPLACE FUNCTION public.fiscal_quarter(dt timestamp without time zone)
     RETURNS character varying

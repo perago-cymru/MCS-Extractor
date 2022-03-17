@@ -98,14 +98,27 @@ namespace MCS_Extractor.ImportedData.Microsoft
             var mapList = mappings.Select(x => x as MicrosoftDataMappingType).ToList<MicrosoftDataMappingType>();
             if (!TableExists(summary.TableName))
             {
-                connection.Open();
-                var tran = connection.BeginTransaction();
-                CreateTable(summary, mapList, tran);
-                RunTemplateScript(summary, tran);
 
-                InsertMappings(summary.TableName, mapList, tran);
-                tran.Commit();
-                connection.Close();
+                    connection.Open();
+                    var tran = connection.BeginTransaction();
+                try
+                {
+                    CreateTable(summary, mapList, tran);
+                    RunTemplateScript(summary, tran);
+
+                    InsertMappings(summary.TableName, mapList, tran);
+                    tran.Commit();
+                }
+                catch (Exception ef)
+                {
+                    Console.WriteLine("Failed to create mapping: " + ef.Message);
+                    tran.Rollback();
+                    throw ef;
+                }
+                finally
+                {
+                    connection.Close();
+                }
             }
         }
 
@@ -166,12 +179,17 @@ namespace MCS_Extractor.ImportedData.Microsoft
 
         private void RunTemplateScript(TableSummary summary, SqlTransaction tran)
         {
-            var statement = ParseMappingFile("\\sql\\postgres\\template.sql", summary);
-            var command = new SqlCommand(statement, connection, tran);
+            var statement = ParseMappingFile("\\sql\\mssql\\template.sql", summary);
+            // GO is a server studio thing that CLR calls don't recognise.
+            foreach (string subsection in statement.Split(new String[] { "\r\nGO\r\n" }, StringSplitOptions.RemoveEmptyEntries))
+            {
 
-            command.ExecuteNonQuery();
+                var command = new SqlCommand(subsection, connection, tran);
 
+                command.ExecuteNonQuery();
+            }
             SaveSummary(summary, tran);
+            
         }
 
 

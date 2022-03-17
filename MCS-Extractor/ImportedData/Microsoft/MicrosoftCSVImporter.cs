@@ -204,7 +204,7 @@ namespace MCS_Extractor.ImportedData.Microsoft
             var summary = LoadTableSummary(connection, tableName);
             if (1 < summary.UserIdentifierFields.Length)
             {
-                var query = new StringBuilder(String.Format("UPDATE {0} areq SET {1} =  ", tableName, summary.UserIdentifier));
+                var query = new StringBuilder(String.Format("UPDATE {0} SET {1} =  ", tableName, summary.UserIdentifier));
                 var first = true;
                 foreach (string field in summary.UserIdentifierFields)
                 {
@@ -218,7 +218,7 @@ namespace MCS_Extractor.ImportedData.Microsoft
                     }
                     query.AppendFormat("b.{0}", field);
                 }
-                query.AppendFormat(" FROM {0} b WHERE areq.id = b.id AND areq.{1} IS NULL", tableName, summary.UserIdentifier);
+                query.AppendFormat(" FROM {0} b WHERE id = b.id AND {1} IS NULL", tableName, summary.UserIdentifier);
                 var command = new SqlCommand(query.ToString(), connection);
                 connection.Open();
                 command.ExecuteNonQuery();
