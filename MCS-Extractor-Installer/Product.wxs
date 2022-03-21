@@ -3,7 +3,7 @@
      xmlns:util='http://schemas.microsoft.com/wix/UtilExtension'
      xmlns:ui='http://schemas.microsoft.com/wix/UIExtension'>
 	<Product Id="755303bf-ad0e-47bd-b32e-51ddb8ff7dad" Name="MCS_Extractor_Installer" 
-           Language="1033" Version="1.0.2.0" Manufacturer="Perago-Wales"
+           Language="1033" Version="1.0.4.0" Manufacturer="Perago-Wales"
            UpgradeCode="759fdfe9-5cc7-46f4-9e59-15805e3f8f64">
   
 		<Package 
@@ -15,14 +15,15 @@
 
 		<Feature Id="ProductFeature" Title="MCS_Extractor_Installer" Level="1">
 			<ComponentGroupRef Id="ProductComponents" />
-      <ComponentGroupRef Id="SQLComponents" />
+      <ComponentGroupRef Id="PGSQLComponents" />
+      <ComponentGroupRef Id="MSSQLComponents" />
       <ComponentGroupRef Id="DownloadFolderGroup" />
 		</Feature>
   
     <Property Id="POSTGRESUSERNAME" Value="postgres" />
     <Property Id="POSTGRESPASSWORD" Secure="yes" Value=" " />
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
-    <Property Id="SQLPATH">$(var.MCS-Extractor.ProjectDir)\Sql\database.sql</Property>
+    <Property Id="SQLPATH">$(var.MCS-Extractor.ProjectDir)\Sql\postgres\database.sql</Property>
     <Property Id="MsiLogging" Value="v" />
     
     <UIRef Id="WixUI_InstallDir" />
@@ -33,7 +34,10 @@
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="ProgramFilesFolder">
 				<Directory Id="INSTALLFOLDER" Name="MCS Extractor" >
-          <Directory Id="SQLFolder" Name="Sql" />
+          <Directory Id="SQLFolder" Name="Sql">
+            <Directory Id="PostgresFolder" Name="postgres" />
+             <Directory Id="MSSQLFolder" Name="mssql" />
+           </Directory>
           <Directory Id="DownloadFolder" Name="Downloaded" >
           </Directory>
         </Directory>
@@ -47,12 +51,17 @@
         <File Id="MCSExtractorExe" Name="MCS_Extractor.exe" DiskId="1" Source="$(var.MCS-Extractor.TargetPath)" KeyPath="yes" />
 			</Component>
 		</ComponentGroup>
-    <ComponentGroup Id="SQLComponents" Directory="SQLFolder" >
-       <Component Id="TemplateSQLComponent" Guid="666eb58a-018d-4ca2-bf55-24c4dd4edc40" >
-        <File Id="TemplateSQL" Name="template.sql" DiskId="1" Source="$(var.MCS-Extractor.ProjectDir)\Sql\template.sql" KeyPath="no" />
+    <ComponentGroup Id="PGSQLComponents" Directory="PostgresFolder" >
+       <Component Id="PGTemplateSQLComponent" Guid="666eb58a-018d-4ca2-bf55-24c4dd4edc40" >
+        <File Id="PGTemplateSQL" Name="template.sql" DiskId="1" Source="$(var.MCS-Extractor.ProjectDir)\Sql\postgres\template.sql" KeyPath="no" />
        </Component>
-         <Component Id="DatabaseSQLComponent" Guid="678bd34f-4364-41e4-aa71-0dea0d6e00f1" >
-        <File Id="DatabaseSQL" Name="database.sql" DiskId="1" Source="$(var.MCS-Extractor.ProjectDir)\Sql\database.sql" KeyPath="no" />
+         <Component Id="PGDatabaseSQLComponent" Guid="678bd34f-4364-41e4-aa71-0dea0d6e00f1" >
+        <File Id="PGDatabaseSQL" Name="database.sql" DiskId="1" Source="$(var.MCS-Extractor.ProjectDir)\Sql\postgres\database.sql" KeyPath="no" />
+      </Component>
+      </ComponentGroup>
+    <ComponentGroup Id="MSSQLComponents" Directory="MSSQLFolder" >
+      <Component Id="MSDatabaseSQLComponent" Guid="4e259e2c-9ecb-11ec-b909-0242ac120002" >
+        <File Id="MSDatabaseSQL" Name="database.sql" DiskId="1" Source="$(var.MCS-Extractor.ProjectDir)\Sql\mssql\database.sql" KeyPath="no" />
       </Component>
     </ComponentGroup>
     <ComponentGroup Id="DownloadFolderGroup">

@@ -7,14 +7,25 @@ This tool is designed to facilitate importing data exported in CSV format from t
 The MCS Data Extractor has the following pre-requisites:
 
 * Microsoft .Net Runtime (the initial release is built against version 4.7.1) any up-to-date Windows system should be more up to date.
+
+### Postgres version
 * PostgreSQL database ( https://www.postgresql.org/ )
 * Postgres ODBC Connector ( https://odbc.postgresql.org/ )
+
 
 The Bootstrapper installer aims to install these pre-requisites and the MCS Extractor tool, but they can be installed manually. Additionally the tool itself has no registry dependencies or other installation elements, as long as the `Downloaded` and `SQL` folders are retained, it should be quite safe to move it into different folders.
 
 On the first run the tool will request the username and password for your Postgres installation. It will use this to create the database and configure the relevant connection strings. As standard, the database will be named `my_council_services_extract` and this can be changed in the application.config file if necessary. On first run this database is created along with some standard functions from the `/MCS-Extractor/Sql/database.sql` folder - these are detailed below.
 
 Having created the database, the tool creates an ODBC connection to facilitate access from office tools. 
+
+
+### Microsoft SQL Server version
+* Microsoft SQL Server instance available to the system performing the install.
+
+The installer will not be able to install SQL Server, this version anticipates that the database infrastructure is already present. If you are using SQL Server as your database back-end you do not need the bootstrapper.
+
+Prior to running the MCS Extractor you will need to create the database from `Sql/mssql/database.sql`, give the user who will be running the tool access rights including creating tables and user functions. You will need to provide a ConnectionString to your user at first run for them to be able to access the database.
 
 ## Use 
 
@@ -28,6 +39,8 @@ The MCS Data Extractor searches the `/Downloaded` folder of the application inst
 
 It will go through every file in the folder each run, so once data has been imported it will save a little time to remove it from the folder. If the import fails it will raise a message box to notify of this, which should offer enough information to adjust mappings by hand if necessary.
 
+Not that the application uses filepaths only to judge whether or not it has seen a file before, moving files to a different folder or having the same files imported from multiple computers could all result in duplicated data being imported. This is one reason that uniqueness checks on the MCS Id field are useful. The other reason is that the same record can be created when the system is updated- for example when a case is closed a new row will be added. Currently the importer does not update existing rows so it will definitely create duplicates.
+
 ### Creating a new mapping 
 
 There are five things that the MCS Data Extractor needs a record to have:
@@ -37,7 +50,7 @@ There are five things that the MCS Data Extractor needs a record to have:
 * A close date - the date the record is closed.
 * A user identifying field - This is a little more tricky to identify because MCS does not provide any data that can identify a specific user. This can be a combination of fields (the first line of the address and postcode, for example) or a single field such as the UPRN.
 
-When a new mapping is being created, the system will load in the the first fifty records (or as many are available in the csv file) and then offer those in a table with their CSV field names and a dropdown to choose the type of each field. The system will try to guess as well as it can, but it won't always get things right so the table will show the first three records as examples of the type of data. The mapping needs the largest/highest/lowest value for the field to accurately choose the type - if the system has recommended a larger field type it is wise to trust its guidance as it will have run through a number of rows. Changing a 'Text' to a 'String' is likely to result in a mapping that fails to import.
+When a new mapping is being created, the system will load in the the first fifty records (or as many are available in the csv file) and then offer those in a table with their CSV field names and a dropdown to choose the type of each field. The system will try to guess as well as it can, but it won't always get things right so the table will show the first three records as examples of the type of data. The mapping needs the largest/highest/lowest value for the field to accurately choose the type - if the system has recommended a larger field type it is wise to trust its guidance as it will have run through a number of rows. Changing a 'Text' to a 'String' is likely to result in a mapping that fails to import, but changing 'String' to 'Text' will result in a table that takes up more space in storage but will have space for a lot of text.
 
 The options are:
 * Boolean - either "true" or "false"
@@ -53,9 +66,11 @@ Once field types have been selected for every field and the start, close and ide
 
 ### Resolving type errors 
 
-It is possible that import will fail with an error caused by a failed type mapping. The most likely cause is where a field mapped as a string gets a value that is too large. This can be resolved with a little manual adjustment of the database, for which you will need PGAdmin, the standard posgres administration tool, which is installed with Postgres as standard.
+It is possible that import will fail with an error caused by a failed type mapping. The most likely cause is where a field mapped as a string gets a value that is too large. This can be resolved with a little manual adjustment of the database, for which you will need PGAdmin, the standard posgres administration tool, which is installed with Postgres as standard or SQL Server Management Studio, depending on which you are using.
 
 The process is as follows:
+
+#### Postgres
 
 1. Open PGAdmin and select 'localhost' from the 'servers' list.
 2. Open your database ('my_council_services_extract') from the database.
@@ -68,7 +83,31 @@ The process is as follows:
 
 With that done, you should be able to re-run your import.
 
-## Accessing Imported Data
+#### SQL Server
+
+SQL Server won't allow you to update a column, so if this happens a while into your run you will need to copy the table, move the records across from it and then update all the references to it.
+
+1. Open The SQL Server Management Studio and connect to your local server.
+2. Open your MCS Extractor database (this will be named in the ConnectionString) from the "Databases" folder.
+3. Right click on your data table and select "Script Table as > CREATE TO"
+4. In the provided query window provide a new name for the table and rename the primary key in the `CONSTRAINT [PK__{tablename}]` section as the existing one will already exist.
+5. Find the field that is of the incorrect type and update it, then click the `! Execute` button to run the query.
+6. Clear the creation statement or open a new query window, you will need every field name from the table and then you can create a `INSERT/SELECT` query along these lines: `INSERT INTO my_new_table(servicerequest, status, name, reported_on, reported_by, closed_on, incident_id, USRN, UPRN, ... ) SELECT (servicerequest, status, name, reported_on, reported_by, closed_on, incident_id, USRN, UPRN, ... ) FROM my_old_table` - note that if there is a change from `nvarchar` to `int` or similar you will have to include a type conversion into your `SELECT` query but if you're using the SQL Server version this should be easy for you.
+7. Update your mappings table: in the query window use `UPDATE csv_table_mappings SET table_name='my_new_table' WHERE table_name='my_old_table' and click `!Execute`.
+8. Update your index field table: in the query window use `UPDATE csv_index_fields SET table_name='my_new_table' WHERE table_name='my_old_table' and click `!Execute.`
+9. That should be enought to get it working - once you have validated that the correct data is in place you can safely `DROP` your old table. 
+
+If you are on your initial import it may be quicker to simply blitz everything and start again: 
+
+```
+truncate table csv_table_mappings;
+truncate table loaded_files;
+truncate table csv_index_fields;
+drop table my_old_table;
+```
+Note that this will blitz _everything_  - you can use more specific queries similar to those described above in steps 7 and 8 to delete with more care, but clearing `loaded_files` may call for more discretion.
+
+## Accessing Imported Data in Postgres
 
 The data can always be queried directly through the PGAdmin SQL tool, but for practicality the Postgres ODBC connector makes it available through the standard ODBC interface. This can be consumed from many different applications, but the most common one is likely to be Excel.
 

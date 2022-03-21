@@ -4,16 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NpgsqlTypes;
+using MCS_Extractor.ImportedData.Interfaces;
 
 namespace MCS_Extractor.ImportedData
 {
-    public class DataMappingType
+    /// <summary>
+    /// A Type to summarise a DataMapping type definition.
+    /// </summary>
+    /// <typeparam name="T">The type of the database field type.</typeparam>
+    public abstract class DataMappingType<T> : IDataMappingType
     {
-        public DataMappingType(string csvField, string dbField, NpgsqlDbType type)
+        public DataMappingType(string csvField, string dbField, T type)
         {
             this.CSVFieldName = csvField;
             this.DatabaseFieldName = dbField;
-            this.PostgresType = type;
+            this.DatabaseType = type;
         }
 
 
@@ -22,23 +27,12 @@ namespace MCS_Extractor.ImportedData
         public string DatabaseFieldName { get; set; }
 
         public virtual string TypeName() {
-            return this.PostgresType.ToString();
+            return this.DatabaseType.ToString();
         }
 
-        public NpgsqlDbType PostgresType { get; set; }
+        public T DatabaseType { get; set; }
 
-        public string GetFieldTypeName()
-        {
-            string result = this.TypeName();
-            if ( PostgresType == NpgsqlDbType.Varchar )
-            {
-                result += "(255)";
-            } else if ( PostgresType == NpgsqlDbType.Double)
-            {
-                result = "Numeric";
-            }
-            return result;
-        }
+        public abstract string GetFieldTypeName();
 
     }
 }

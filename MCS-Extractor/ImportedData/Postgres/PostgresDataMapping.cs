@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using NpgsqlTypes;
 
-namespace MCS_Extractor.ImportedData
+namespace MCS_Extractor.ImportedData.Postgres
 {
-    public class DataMapping<T> : DataMappingType
+    public class PostgresDataMapping<T> : PostgresDataMappingType
     {
-        public DataMapping(string csvField, string dbField, NpgsqlDbType type) : base(csvField, dbField, type)
+        public PostgresDataMapping(string csvField, string dbField, NpgsqlDbType type) : base(csvField, dbField, type)
         {
         }
 
@@ -24,6 +24,10 @@ namespace MCS_Extractor.ImportedData
         {
             return typeof(T).Name;
         }
+
+       
+
+
 
     }
 }
