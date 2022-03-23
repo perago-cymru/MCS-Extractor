@@ -16,20 +16,28 @@ namespace MCS_Extractor.FirstRun.Microsoft
         
         public MsStartupCheck()
         {
-            var conn = new SqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
-            var command = new SqlCommand("Select count(id) FROM csv_table_mappings;", conn);
-                var exists = false;
+            var exists = false;
             try
             {
-                conn.Open();
-                exists = 0 <= (int)command.ExecuteScalar();
+                var conn = new SqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
+                var command = new SqlCommand("Select count(id) FROM csv_table_mappings;", conn);
+                try
+                {
+                    conn.Open();
+                    exists = 0 <= (int)command.ExecuteScalar();
+                }
+                catch (Exception ef)
+                {
+                    Debug.WriteLine("Exception checking start-up: " + ef.Message);
+                    Debug.WriteLine("Query: " + command.CommandText);
+                    Debug.Write(ef.StackTrace);
+                }
             }
-            catch (Exception ef)
+            catch (Exception ef )
             {
-                Debug.WriteLine("Exception checking start-up: " + ef.Message);
-                Debug.WriteLine("Query: " + command.CommandText);
-                Debug.Write(ef.StackTrace);
+                FirstRun = false;
             }
+           
             FirstRun = !exists;
 
         }

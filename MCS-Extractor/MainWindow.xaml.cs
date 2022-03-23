@@ -274,11 +274,11 @@ namespace MCS_Extractor
                     {
                         m.Example1 = csMapping.Values[0][i];
                     }
-                    if (0 < csMapping.Values.Count)
+                    if (1 < csMapping.Values.Count)
                     {
                         m.Example2 = csMapping.Values[1][i];
                     }
-                    if (0 < csMapping.Values.Count)
+                    if (2 < csMapping.Values.Count)
                     {
                         m.Example3 = csMapping.Values[2][i];
                     }
