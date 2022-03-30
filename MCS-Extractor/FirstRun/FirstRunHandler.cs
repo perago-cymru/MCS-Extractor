@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
+
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MCSDataImport;
 using MCS_Extractor.FirstRun.Interfaces;
 using MCS_Extractor.FirstRun.Postgres;
 using MCS_Extractor.FirstRun.Microsoft;
@@ -18,16 +19,16 @@ namespace MCS_Extractor.FirstRun
     {
         private IStartupCheck startup;
 
-        public string Platform { get; private set; }
+        public DatabasePlatform Platform { get; private set; }
 
         public FirstRunHandler()
         {
-            Platform = ConfigurationManager.AppSettings["DatabasePlatform"].ToLower();
+            Platform = StorageSettings.GetInstance().DatabasePlatform;
             switch (Platform)
             {
-                case "postgres": startup = new PostgresStartupCheck();
+                case DatabasePlatform.Postgres: startup = new PostgresStartupCheck();
                     break;
-                case "mssql": startup = new MsStartupCheck();
+                case DatabasePlatform.MSSQL: startup = new MsStartupCheck();
                     break;
                 default:
                     Debug.WriteLine(String.Format("Could not find startup check for platform {0}", Platform));
@@ -54,9 +55,9 @@ namespace MCS_Extractor.FirstRun
             {
                 switch (Platform)
                 {
-                    case "postgres": first = new PostgresFirstRunProcess();
+                    case DatabasePlatform.Postgres: first = new PostgresFirstRunProcess();
                         break;
-                    case "mssql": first = new MsFirstRunProcess();
+                    case DatabasePlatform.MSSQL: first = new MsFirstRunProcess();
                         break;
                     default: throw new Exception(String.Format("Could not find first run process for platform {0}", Platform));
                         break;

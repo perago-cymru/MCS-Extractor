@@ -13,7 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using MCS_Extractor.ImportedData;
+using MCSDataImport;
 using MCS_Extractor.FirstRun;
 
 namespace MCS_Extractor
@@ -30,8 +30,12 @@ namespace MCS_Extractor
 
         public MainWindow()
         {
-            importer = new CSVImporter();
-            csvHandler = new CSVFileHandler();
+            var settings = StorageSettings.GetInstance();
+            var platform = settings.DatabasePlatform;
+            var connectionString = settings.ConnectionString;
+            var dbName = settings.DatabaseName;
+            importer = new CSVImporter(platform, connectionString, dbName );
+            csvHandler = new CSVFileHandler(settings.StoragePath, platform, connectionString, dbName);
           
             InitializeComponent();
         }
@@ -49,9 +53,9 @@ namespace MCS_Extractor
 
         private void CreateButton_Click(object sender, RoutedEventArgs e)
         {
-
+            StorageSettings settings = StorageSettings.GetInstance();
             string tableName = TableName.Text;
-            CSVMappingFactory factory = new CSVMappingFactory();
+            CSVMappingFactory factory = new CSVMappingFactory(settings.DatabasePlatform, settings.ConnectionString, settings.DatabaseName);
             if (0 < tableName.Length)
             {
                 if (ValidateSummaryFields())

@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 
-namespace MCS_Extractor.ImportedData
+namespace MCSDataImport
 {
 
     public abstract class MappingCreator

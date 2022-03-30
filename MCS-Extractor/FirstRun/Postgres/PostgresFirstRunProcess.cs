@@ -4,9 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Configuration;
 
-using MCS_Extractor.ImportedData;
+using MCSDataImport;
 using MCS_Extractor.FirstRun.Interfaces;
 
 namespace MCS_Extractor.FirstRun.Postgres
@@ -16,7 +15,8 @@ namespace MCS_Extractor.FirstRun.Postgres
 
         public bool FirstRun()
         {
-            var dataCreator = new PostgresDatabaseCreation(ConfigurationManager.AppSettings["ConnectionString"]);
+            var settings = StorageSettings.GetInstance();
+            var dataCreator = new PostgresDatabaseCreation(settings.ConnectionString);
             var result = dataCreator.RunSQLFileFromPath(CSVFileHandler.GetInstallFolder() + "\\sql\\postgres\\database.sql");
             if (0 < dataCreator.Log.Count)
             {
@@ -27,7 +27,7 @@ namespace MCS_Extractor.FirstRun.Postgres
             }
             if (result)
             {
-                result = PostgresOdbcCreation.CreateODBC(String.Format("{0};Database={1}", ConfigurationManager.AppSettings["ConnectionString"], ConfigurationManager.AppSettings["DatabaseName"]));
+                result = PostgresOdbcCreation.CreateODBC(String.Format("{0};Database={1}", settings.ConnectionString, settings.DatabaseName));
             }
             return result;
         }

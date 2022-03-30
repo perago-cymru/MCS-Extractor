@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MCS_Extractor.ImportedData.Interfaces;
+using MCSDataImport.Interfaces;
 
-namespace MCS_Extractor.ImportedData
+namespace MCSDataImport
 {
     public abstract class ScriptParsingMappingLoader : IMappingLoader
     {

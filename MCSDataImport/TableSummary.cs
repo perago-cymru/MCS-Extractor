@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MCS_Extractor.ImportedData
+namespace MCSDataImport
 {
     public class TableSummary
     {

@@ -30,6 +30,14 @@
     </WixExtension>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MCS-Extractor-CMD\MCS-Extractor-CMD.csproj">
+      <Name>MCS-Extractor-CMD</Name>
+      <Project>{ed4f8aff-ad8c-40bf-975b-0f1aefe97354}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
     <ProjectReference Include="..\MCS-Extractor\MCS-Extractor.csproj">
       <Name>MCS-Extractor</Name>
       <Project>{84b9461a-4c3b-4846-99f1-0759534f06a6}</Project>

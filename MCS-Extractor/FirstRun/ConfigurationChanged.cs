@@ -1,23 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MCSDataImport;
 
 namespace MCS_Extractor.FirstRun
 {
     public class ConfigurationChanged
     {
+        private StorageSettings settings;
+
         public ConfigurationChanged()
         {
-           
+             settings = StorageSettings.GetInstance();
         }
 
         public void SetDatabaseCredentials(string username, string password)
         {
-            Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            var connectionString = ConfigurationManager.AppSettings["ConnectionString"];
+            
+            //  Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var connectionString = settings.ConnectionString;// ConfigurationManager.AppSettings["ConnectionString"];
             var components = connectionString.Split(';');
             for ( int i =0; i<components.Length; i++)
             {
@@ -31,36 +34,29 @@ namespace MCS_Extractor.FirstRun
                 }
             }
             connectionString = String.Join(";", components);
-            UpdateAppSettings("ConnectionString", connectionString);
+            settings.ConnectionString= connectionString;
         }
 
-        public void SetConnectionString(string newConnect)
+        public void SetConnectionString(string newConnectionString)
         {
-            UpdateAppSettings("ConnectionString", newConnect);
+            settings.ConnectionString = newConnectionString;
         }
 
         public void SetDatabasePlatform(string newPlatform)
         {
-            var viablePlatforms = new string[] { "mssql", "postgres" };
-            if ( !viablePlatforms.Contains(newPlatform) )
+            var platform = DatabasePlatform.unset;
+            switch (newPlatform)
             {
-                throw new Exception(String.Format("\"{0}\" is not a valid database platform.", newPlatform));
+                case "mssql": platform = DatabasePlatform.MSSQL;
+                    break;
+                case "postgres": platform = DatabasePlatform.Postgres;
+                    break;
+                default: throw new Exception(String.Format("\"{0}\" is not a valid database platform.", newPlatform));
             }
-            UpdateAppSettings("DatabasePlatform", newPlatform);
+ 
+            settings.DatabasePlatform= platform;
         }
 
-        private void UpdateAppSettings(string theKey, string theValue)
-        {
-            Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            if (ConfigurationManager.AppSettings.AllKeys.Contains(theKey))
-            {
-                configuration.AppSettings.Settings[theKey].Value = theValue;
-            }
-
-            configuration.Save(ConfigurationSaveMode.Modified);
-
-            ConfigurationManager.RefreshSection("appSettings");
-        }
 
     }
 }

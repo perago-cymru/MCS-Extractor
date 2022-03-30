@@ -10,17 +10,23 @@ using System.Configuration;
 using Npgsql;
 using NpgsqlTypes;
 using CsvHelper;
-using MCS_Extractor.ImportedData.Interfaces;
+using MCSDataImport.Interfaces;
 
-namespace MCS_Extractor.ImportedData.Postgres
+namespace MCSDataImport.Postgres
 {
     public class PostgresCSVImporter : ICSVImporter
     {
         public List<string> Reporter { get; set; }
 
-        public PostgresCSVImporter(ref List<string> reporter)
+        private static string ConnectionString;
+
+        private static string DatabaseName;
+
+        public PostgresCSVImporter(ref List<string> reporter, string connectionString, string dbName)
         {
+            //ConfigurationManager.AppSettings["ConnectionString"], ConfigurationManager.AppSettings["DatabaseName"]);
             this.Reporter = reporter;
+            SetConnectionProperties(connectionString, DatabaseName);
         }
 
         public void ImportToTable(string filename, string tableName)
@@ -200,9 +206,19 @@ namespace MCS_Extractor.ImportedData.Postgres
             return import;
         }
 
+        public static void SetConnectionProperties(string connectionString, string dbName)
+        {
+            ConnectionString = connectionString;
+            DatabaseName = dbName;
+        }
+
         public static NpgsqlConnection GetConnection()
         {
-            var connectionString = String.Format("{0}Database={1}", ConfigurationManager.AppSettings["ConnectionString"], ConfigurationManager.AppSettings["DatabaseName"]);
+            if ( String.IsNullOrEmpty(ConnectionString) || String.IsNullOrEmpty(DatabaseName))
+            {
+                throw new Exception("Cannot create connection with unset ConnectionString or DatabaseName");
+            }
+            var connectionString = String.Format("{0}Database={1}", ConnectionString, DatabaseName);
             return new NpgsqlConnection(connectionString);
         }
 
