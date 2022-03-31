@@ -6,16 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Configuration;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using MCS_Extractor.FirstRun;
-using MCS_Extractor.ImportedData;
+
+using MCSDataImport;
 using MCS_Extractor;
 
 namespace MCS_Extractor.FirstRun.Postgres
@@ -71,7 +63,7 @@ namespace MCS_Extractor.FirstRun.Postgres
 
         private void CheckForDataDirectory()
         {
-            var datadir = System.IO.Path.Combine(CSVFileHandler.GetInstallFolder(), ConfigurationManager.AppSettings["DataDirectory"]);
+            var datadir = System.IO.Path.Combine(CSVFileHandler.GetInstallFolder(), StorageSettings.GetInstance().StoragePath);
             if ( !Directory.Exists(datadir))
             {
                 Directory.CreateDirectory(datadir);

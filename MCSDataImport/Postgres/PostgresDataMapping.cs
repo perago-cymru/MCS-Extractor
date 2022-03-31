@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NpgsqlTypes;
 
-namespace MCS_Extractor.ImportedData.Postgres
+namespace MCSDataImport.Postgres
 {
     public class PostgresDataMapping<T> : PostgresDataMappingType
     {

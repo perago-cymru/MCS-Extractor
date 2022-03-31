@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NpgsqlTypes;
-using MCS_Extractor.ImportedData.Interfaces;
+using MCSDataImport.Interfaces;
 
-namespace MCS_Extractor.ImportedData.Postgres
+namespace MCSDataImport.Postgres
 {
     class PostgresMappingCreator: MappingCreator
     {

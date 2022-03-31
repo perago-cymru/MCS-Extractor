@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
+
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,7 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MCS_Extractor.FirstRun;
-using MCS_Extractor.ImportedData;
+using MCSDataImport;
 
 namespace MCS_Extractor.FirstRun.Microsoft
 {
@@ -75,7 +75,7 @@ namespace MCS_Extractor.FirstRun.Microsoft
 
         private void CheckForDataDirectory()
         {
-            var datadir = System.IO.Path.Combine(CSVFileHandler.GetInstallFolder(), ConfigurationManager.AppSettings["DataDirectory"]);
+            var datadir = System.IO.Path.Combine(CSVFileHandler.GetInstallFolder(), StorageSettings.GetInstance().StoragePath);
             if (!Directory.Exists(datadir))
             {
                 Directory.CreateDirectory(datadir);

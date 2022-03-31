@@ -10,9 +10,9 @@ using System.Configuration;
 using Npgsql;
 using NpgsqlTypes;
 using CsvHelper;
-using MCS_Extractor.ImportedData.Interfaces;
+using MCSDataImport.Interfaces;
 
-namespace MCS_Extractor.ImportedData
+namespace MCSDataImport
 {
     public class CSVImporter 
     {
@@ -21,6 +21,19 @@ namespace MCS_Extractor.ImportedData
 
         public List<string> report = new List<string>();
 
+        private DatabasePlatform Platform;
+
+        private string ConnectionString;
+
+        private string DatabaseName;
+
+        public CSVImporter( DatabasePlatform dbPlatform, string connectionString, string databaseName = null)
+        {
+            this.Platform = dbPlatform;
+            this.ConnectionString = connectionString;
+            this.DatabaseName = databaseName;
+        }
+
         public bool ImportMapping(string fileName)
         {
 
@@ -28,7 +41,7 @@ namespace MCS_Extractor.ImportedData
             var result = false;
             if (!summary.Empty)
             {
-                var factory = new CSVMappingFactory();
+                var factory = new CSVMappingFactory(Platform, ConnectionString, DatabaseName);
                 var loader = factory.Loader;
                 var table = loader.FindTableByHeaders(summary.Headers);
 

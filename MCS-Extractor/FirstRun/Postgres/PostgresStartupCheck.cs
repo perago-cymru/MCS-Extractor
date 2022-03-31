@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Npgsql;
 using System.Diagnostics;
+using MCSDataImport;
 using MCS_Extractor.FirstRun.Interfaces;
 
 namespace MCS_Extractor.FirstRun.Postgres
@@ -16,8 +16,8 @@ namespace MCS_Extractor.FirstRun.Postgres
 
         public PostgresStartupCheck()
         {
-            var conn = new NpgsqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
-            var query = String.Format("SELECT count(datname) = 1 FROM pg_catalog.pg_database WHERE lower(datname) = lower('{0}')", ConfigurationManager.AppSettings["DatabaseName"]);
+            var conn = new NpgsqlConnection(StorageSettings.GetInstance().ConnectionString);
+            var query = String.Format("SELECT count(datname) = 1 FROM pg_catalog.pg_database WHERE lower(datname) = lower('{0}')", StorageSettings.GetInstance().DatabaseName);
             var command = new NpgsqlCommand(query, conn);
             var exists = false;
             try

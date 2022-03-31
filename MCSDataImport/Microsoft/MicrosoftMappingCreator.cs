@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MCS_Extractor.ImportedData.Interfaces;
+using MCSDataImport.Interfaces;
 
-namespace MCS_Extractor.ImportedData.Microsoft
+namespace MCSDataImport.Microsoft
 {
     public class MicrosoftMappingCreator : MappingCreator
     {

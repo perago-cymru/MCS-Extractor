@@ -9,17 +9,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CsvHelper;
-using MCS_Extractor.ImportedData.Interfaces;
+using MCSDataImport.Interfaces;
 
-namespace MCS_Extractor.ImportedData.Microsoft
+namespace MCSDataImport.Microsoft
 {
     public class MicrosoftCSVImporter : ICSVImporter
     {
         public List<string> Reporter { get; set; }
 
-        public MicrosoftCSVImporter(ref List<string> reporter)
+        public static string ConnectionString { get; set; }
+
+        public MicrosoftCSVImporter(ref List<string> reporter, string connectionString)
         {
             this.Reporter = reporter;
+            ConnectionString = connectionString;
         }
 
         public bool HasBeenRead(string filename)
@@ -131,8 +134,16 @@ namespace MCS_Extractor.ImportedData.Microsoft
 
         public static SqlConnection GetConnection()
         {
-            var connectionString = ConfigurationManager.AppSettings["ConnectionString"];
-            return new SqlConnection(connectionString);
+            // var connectionString = ConfigurationManag[er.AppSettings["ConnectionString"];
+            if (String.IsNullOrEmpty(ConnectionString))
+            {
+                ConnectionString = StorageSettings.GetInstance().ConnectionString;
+            }
+            if (String.IsNullOrEmpty(ConnectionString))
+            {
+                throw new Exception("Attempt to create connection without having established a connectionstring");
+            }
+            return new SqlConnection(ConnectionString);
         }
 
         public static TableSummary LoadTableSummary(SqlConnection connection, string tableName, bool openConnection = true)

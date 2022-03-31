@@ -85,9 +85,6 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.7.1\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
-    <Reference Include="System.Text.Encodings.Web, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Text.Encodings.Web.4.6.0\lib\netstandard2.0\System.Text.Encodings.Web.dll</HintPath>
-    </Reference>
     <Reference Include="System.Text.Json, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Text.Json.4.7.2\lib\net461\System.Text.Json.dll</HintPath>
     </Reference>
@@ -119,15 +116,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ImportedData\Microsoft\MicrosoftCSVImporter.cs" />
-    <Compile Include="ImportedData\Microsoft\MicrosoftDataMappingType.cs" />
-    <Compile Include="ImportedData\Microsoft\MicrosoftMappingCreator.cs" />
-    <Compile Include="ImportedData\Microsoft\MicrosoftMappingLoader.cs" />
-    <Compile Include="ImportedData\ScriptParsingMappingLoader.cs" />
-    <Compile Include="ImportedData\TableSummary.cs" />
     <Compile Include="SelectDatabase.xaml.cs">
       <DependentUpon>SelectDatabase.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Settings.cs" />
     <Page Include="FirstRun\Microsoft\MicrosoftFirstRunWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -160,20 +152,6 @@
     <Compile Include="FirstRun\Postgres\PostgresFirstRunProcess.cs" />
     <Compile Include="FirstRun\Postgres\PostgresOdbcCreation.cs" />
     <Compile Include="FirstRun\Postgres\PostgresStartupCheck.cs" />
-    <Compile Include="ImportedData\CSVFileHandler.cs" />
-    <Compile Include="ImportedData\CSVImporter.cs" />
-    <Compile Include="ImportedData\CSVMappingFactory.cs" />
-    <Compile Include="ImportedData\CSVSummary.cs" />
-    <Compile Include="ImportedData\DataMappingType.cs" />
-    <Compile Include="ImportedData\Interfaces\IMappingLoader.cs" />
-    <Compile Include="ImportedData\Interfaces\ICSVImporter.cs" />
-    <Compile Include="ImportedData\Postgres\PostgresCSVImporter.cs" />
-    <Compile Include="ImportedData\Postgres\PostgresDataMapping.cs" />
-    <Compile Include="ImportedData\Interfaces\IDataMappingType.cs" />
-    <Compile Include="ImportedData\MappingCreator.cs" />
-    <Compile Include="ImportedData\Postgres\PostgresDataMappingType.cs" />
-    <Compile Include="ImportedData\Postgres\PostgresMappingLoader.cs" />
-    <Compile Include="ImportedData\Postgres\PostgresMappingCreator.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -244,6 +222,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Sql\mssql\template.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MCSDataImport\MCSDataImport.csproj">
+      <Project>{b0867f8f-415e-46bd-9b9b-d46c8e4cf97c}</Project>
+      <Name>MCSDataImport</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

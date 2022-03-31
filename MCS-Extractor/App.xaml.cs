@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
+
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using MCSDataImport;
 using MCS_Extractor.FirstRun;
 using MCS_Extractor.FirstRun.Postgres;
 using MCS_Extractor.FirstRun.Microsoft;
@@ -23,12 +24,12 @@ namespace MCS_Extractor
             if (first.IsFirstRun)
             {
                 switch (first.Platform) {
-                        case "postgres": 
+                        case DatabasePlatform.Postgres: 
                         var firstRun = new PostgresFirstRunWindow();
                     //firstRun.Owner = this;
                     firstRun.Show();
                             break;
-                    case "mssql":
+                    case DatabasePlatform.MSSQL:
                         var msRun = new MicrosoftFirstRunWindow();
                         msRun.Show();
                         break;

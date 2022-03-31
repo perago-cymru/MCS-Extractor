@@ -29,7 +29,11 @@ Prior to running the MCS Extractor you will need to create the database from `Sq
 
 ## Use 
 
-The MCS Data Extractor searches the `/Downloaded` folder of the application installation directory for .csv files. When it finds one, it goes through the following steps:
+On first run the MCS Data Extractor will ask which database you are using and ask for some connection parameters- a connection string for SQL server, database name and user credentials for Postgres. This information will be stored in your user's roaming profile in `%USER%\AppData\Roaming\MCS Extractor` - if the connection is failing you can change the values in this folder with a text editor (it is a standard XML config file) or delete the folder to force the application to recreate it.
+
+Having got the connection established it will look for the tables it depends on and create them if it cannot find them. 
+
+When you run an import, the MCS Data Extractor searches the `/Downloaded` folder of the application installation directory for .csv files. When it finds one, it goes through the following steps:
 
 * Read file from folder.
 * Check whether the file has already been seen and ignore it if it has.
