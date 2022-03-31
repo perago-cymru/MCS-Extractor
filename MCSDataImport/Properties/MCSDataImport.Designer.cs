@@ -22,53 +22,5 @@ namespace MCSDataImport.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string DatabasePlatform {
-            get {
-                return ((string)(this["DatabasePlatform"]));
-            }
-            set {
-                this["DatabasePlatform"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("my_council_services_extract")]
-        public string DatabaseName {
-            get {
-                return ((string)(this["DatabaseName"]));
-            }
-            set {
-                this["DatabaseName"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Downloaded")]
-        public string StoragePath {
-            get {
-                return ((string)(this["StoragePath"]));
-            }
-            set {
-                this["StoragePath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Host=localhost;Port=5432;username=;password=;")]
-        public string ConnectionString {
-            get {
-                return ((string)(this["ConnectionString"]));
-            }
-            set {
-                this["ConnectionString"] = value;
-            }
-        }
     }
 }

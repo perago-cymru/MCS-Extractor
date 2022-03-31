@@ -1,18 +1,5 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="MCSDataImport.Properties" GeneratedClassName="MCSDataImport">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
   <Profiles />
-  <Settings>
-    <Setting Name="DatabasePlatform" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="DatabaseName" Type="System.String" Scope="User">
-      <Value Profile="(Default)">my_council_services_extract</Value>
-    </Setting>
-    <Setting Name="StoragePath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Downloaded</Value>
-    </Setting>
-    <Setting Name="ConnectionString" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Host=localhost;Port=5432;username=;password=;</Value>
-    </Setting>
-  </Settings>
+  <Settings />
 </SettingsFile>

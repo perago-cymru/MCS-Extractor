@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Configuration;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace MCSDataImport
 {
@@ -15,6 +17,9 @@ namespace MCSDataImport
 
     public class StorageSettings
     {
+        private const string configFolderName = "MCS Extractor";
+        private const string configFileName = "StorageSettings.config";
+
         private DatabasePlatform databasePlatform;
 
         private string connectionString;
@@ -25,12 +30,16 @@ namespace MCSDataImport
 
         private static StorageSettings settings;
 
+        private Configuration config;
+
+
         public StorageSettings()
         {
-            databaseName = Properties.MCSDataImport.Default.DatabaseName;
-            connectionString = Properties.MCSDataImport.Default.ConnectionString;
-            storagePath = Properties.MCSDataImport.Default.StoragePath;
-            switch (Properties.MCSDataImport.Default.DatabasePlatform)
+            config = LoadConfigFile();
+            databaseName = config.AppSettings.Settings["DatabaseName"].Value;
+            connectionString = config.AppSettings.Settings["ConnectionString"].Value;
+            storagePath = config.AppSettings.Settings["StoragePath"].Value;
+            switch (config.AppSettings.Settings["DatabasePlatform"].Value)
             {
                 case "mssql": databasePlatform = DatabasePlatform.MSSQL;
                     break;
@@ -55,10 +64,10 @@ namespace MCSDataImport
                         case DatabasePlatform.Postgres: platformString = "postgres";
                             break;
                     }
-                    Properties.MCSDataImport.Default.DatabasePlatform = platformString;
-                    Properties.MCSDataImport.Default.Save();
+                    config.AppSettings.Settings["DatabasePlatform"].Value = platformString;
+                    config.Save(ConfigurationSaveMode.Modified);
                 }
-            }           
+            }
         }
 
         public string DatabaseName {
@@ -67,8 +76,8 @@ namespace MCSDataImport
                 if (value != databaseName)
                 {
                     databaseName = value;
-                    Properties.MCSDataImport.Default.DatabaseName = databaseName;
-                    Properties.MCSDataImport.Default.Save();
+                    config.AppSettings.Settings["DatabaseName"].Value = databaseName;
+                    config.Save(ConfigurationSaveMode.Modified);
                 }
             }
         }
@@ -80,8 +89,8 @@ namespace MCSDataImport
                 if (value != connectionString)
                 {
                     connectionString = value;
-                    Properties.MCSDataImport.Default.ConnectionString = connectionString;
-                    Properties.MCSDataImport.Default.Save();
+                    config.AppSettings.Settings["ConnectionString"].Value = connectionString;
+                    config.Save(ConfigurationSaveMode.Modified);
                 }
             }
         }
@@ -93,8 +102,8 @@ namespace MCSDataImport
                 if (value != storagePath)
                 {
                     storagePath = value;
-                    Properties.MCSDataImport.Default.StoragePath = storagePath;
-                    Properties.MCSDataImport.Default.Save();
+                    config.AppSettings.Settings["StoragePath"].Value = storagePath;
+                    config.Save(ConfigurationSaveMode.Modified);
                 }
             }
         }
@@ -107,6 +116,37 @@ namespace MCSDataImport
             }
             return settings;
         }
+
+        private Configuration LoadConfigFile()
+        {
+            ExeConfigurationFileMap configFilemap = new ExeConfigurationFileMap();
+            var folderPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + configFolderName;
+            if (!Directory.Exists(folderPath))
+            {
+                CreateConfigFile(folderPath);
+            }
+            configFilemap.ExeConfigFilename = folderPath + "\\" + configFileName;
+            Configuration cfg = ConfigurationManager.OpenMappedExeConfiguration(configFilemap, ConfigurationUserLevel.None);
+            return cfg;
+        }
+
+        private void CreateConfigFile(string folderPath)
+        {
+            Directory.CreateDirectory(folderPath);
+
+            new XDocument(
+                    new XElement("configuration", new XElement("appSettings",
+                        new XElement[]{
+                             new XElement("add", new XAttribute( "key", "DatabasePlatform" ), new XAttribute("value", "" ) ),
+                            new XElement("add", new XAttribute("key", "DatabaseName" ), new XAttribute("value", "mcs-extractor" ) ),
+                            new XElement("add", new XAttribute( "key", "ConnectionString" ), new XAttribute("value", "Host=localhost;Port=5432;username=;password=;")),
+                            new XElement("add", new XAttribute( "key", "StoragePath" ), new XAttribute( "value", "Downloaded" ))
+
+                        }))
+                ).Save(folderPath + "\\" + configFileName);
+        }
+
+   
         
 
     }
