@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Npgsql;
+using MCSDataImport;
 
 namespace MCS_Extractor.FirstRun.Postgres
 {
@@ -25,7 +25,7 @@ namespace MCS_Extractor.FirstRun.Postgres
         {
             var result = false;
             Log.Add("Create database from " + path);
-            var dbName = ConfigurationManager.AppSettings["DatabaseName"];
+            var dbName = StorageSettings.GetInstance().DatabaseName;
             var create = String.Format("CREATE DATABASE {0} WITH OWNER = postgres ENCODING = 'UTF8';", dbName);
 
             var reader = new StreamReader(path);

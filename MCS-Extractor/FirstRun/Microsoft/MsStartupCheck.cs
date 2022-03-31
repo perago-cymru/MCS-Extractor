@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
+
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MCSDataImport;
 using MCS_Extractor.FirstRun.Interfaces;
 
 namespace MCS_Extractor.FirstRun.Microsoft
@@ -19,7 +20,7 @@ namespace MCS_Extractor.FirstRun.Microsoft
             var exists = false;
             try
             {
-                var conn = new SqlConnection(ConfigurationManager.AppSettings["ConnectionString"]);
+                var conn = new SqlConnection(StorageSettings.GetInstance().ConnectionString);
                 var command = new SqlCommand("Select count(id) FROM csv_table_mappings;", conn);
                 try
                 {

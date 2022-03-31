@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Npgsql;
 using NpgsqlTypes;
-using MCS_Extractor.ImportedData.Interfaces;
+using MCSDataImport.Interfaces;
 
-namespace MCS_Extractor.ImportedData.Postgres
+namespace MCSDataImport.Postgres
 {
     public class PostgresMappingLoader : ScriptParsingMappingLoader
     {

@@ -4,11 +4,11 @@ using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MCS_Extractor.ImportedData.Interfaces;
-using MCS_Extractor.ImportedData.Postgres;
-using MCS_Extractor.ImportedData.Microsoft;
+using MCSDataImport.Interfaces;
+using MCSDataImport.Postgres;
+using MCSDataImport.Microsoft;
 
-namespace MCS_Extractor.ImportedData
+namespace MCSDataImport
 {
     public class CSVMappingFactory
     {
@@ -16,19 +16,26 @@ namespace MCS_Extractor.ImportedData
 
         public MappingCreator Creator { get; private set; }
 
-        private string platform;
+        private DatabasePlatform Platform;
 
-        public CSVMappingFactory()
+        private string ConnectionString;
+
+        private string DatabaseName;
+
+        public CSVMappingFactory(DatabasePlatform platform, string connectionString, string databaseName = null)
         {
-            platform = ConfigurationManager.AppSettings["DatabasePlatform"].ToLower();
+            this.ConnectionString = connectionString;
+            this.DatabaseName = databaseName;
+            this.Platform = platform;
+           // platform = ConfigurationManager.AppSettings["DatabasePlatform"].ToLower();
             switch (platform)
             {
-                case "postgres":
+                case DatabasePlatform.Postgres:
 
                     Loader = new PostgresMappingLoader();
                     Creator = new PostgresMappingCreator();
                     break;
-                case "mssql":
+                case DatabasePlatform.MSSQL:
                     Loader = new MicrosoftMappingLoader();
                     Creator = new MicrosoftMappingCreator();
                     break;
@@ -40,14 +47,16 @@ namespace MCS_Extractor.ImportedData
 
         public ICSVImporter GetCSVImporter(ref List<string> reporter)
         {
-            switch ( platform )
+            switch ( Platform )
             {
-                case "postgres": return new PostgresCSVImporter(ref reporter);
+                case DatabasePlatform.Postgres:
+                    return new PostgresCSVImporter(ref reporter, ConnectionString, DatabaseName);
                     break;
-                case "mssql": return new MicrosoftCSVImporter(ref reporter);
+                case DatabasePlatform.MSSQL:
+                    return new MicrosoftCSVImporter(ref reporter, ConnectionString);
                     break;
                 default:
-                    throw new Exception(String.Format("Could not find csv importer for platform {0}", platform));
+                    throw new Exception(String.Format("Could not find csv importer for platform {0}", Platform));
                     break;
             }
         }
