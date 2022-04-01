@@ -50,9 +50,8 @@
 		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
 			<Component Id="ProductComponent" Guid="498CE7A5-BC35-4D4F-A086-030B190166C7">
         <File Id="MCSExtractorExe" Name="MCS-Extractor.exe" DiskId="1" Source="$(var.MCS-Extractor.TargetPath)" KeyPath="yes" />
-        <File Id="MCSExtractorConfig" Name="MCS-Extractor.exe.config" DiskId="1" Source="$(var.MCS-Extractor.TargetDir)" KeyPath="no" >
-          <Permission User="Everyone" GenericAll="yes" />  
-      </File>
+        <File Id="MCSExtractorConfig" Name="MCS-Extractor.exe.config" DiskId="1" Source="$(var.MCS-Extractor.TargetDir)" KeyPath="no" />
+        <File Id="MCSDataImport" Name="MCSDataImport.dll" DiskId="1" Source="$(var.MCS-Extractor.TargetDir)" KeyPath="no" />
 			</Component>
 
 		</ComponentGroup>
