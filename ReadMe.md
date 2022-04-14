@@ -121,10 +121,16 @@ The data can always be queried directly through the PGAdmin SQL tool, but for pr
 3. On the ODBC menu that opens select `MCS-Extractor` as your DSN.
 4. Finally open the `Advanced Options` section and add an SQL statement to choose the data you are importing. The simplest SQL statement would be `select * from [your table name]` but you can query this data in any configuration that you find useful and there are several built in views to help with this.
 
-### Existing Views
+## Accessing Imported Data in SQL Server
+
+If you are using SQL Server you can always query the data from the SQL Server enterprise manager, but SQL Server is very well integrated with Microsoft's Office platform.
+
+In Excel querying SQL Server is as simple as going to the `Data` tab on the Ribbon, clicking `Get Data` and then selecting `SQL Server` which will ask for your server and database name. Open the `advanced` section to query one of the views below.
+
+## Existing Views
 When a new mapping table is created, some views are created along with it, to provide some easy access to data. These are the built-in views:
 
-#### [table]_delivery_periods
+### [table]_delivery_periods
 
 Query: `SELECT * FROM [your table name]_delivery_periods`
 
@@ -132,7 +138,7 @@ This view evaluates requests closed per month over the timespan that has been im
 
 The view ignores requests where the start and close dates are the same because these are likely to be special cases and not informative with regard to the standard delivery process.
 
-#### [table]_quarterly_durations
+### [table]_quarterly_durations
 
 Query: `SELECT * FROM [your table name]_quarterly_durations`
 
@@ -152,9 +158,6 @@ Query: `SELECT * FROM [your table name]_duplicates`
    ORDER BY duplicates.duplicates desc, req.servicerequest;
 ```
 This query will show you all currently "Under Review" records side by side with any records that have been identified as duplicates. 
-
-
-
 
 ## Limitations 
 

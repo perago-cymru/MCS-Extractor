@@ -42,12 +42,10 @@ namespace MCS_Extractor
 
         private void ImportButton_Click(object sender, RoutedEventArgs e)
         {
-            ImportButton.IsEnabled = false;
-            ImportLabel.Content = "Importing...";
+
             ImportList.Items.Clear();
-             ImportFiles();
-            ImportLabel.Content = "Import complete, " + ImportList.Items.Count + " files imported.";
-            ImportButton.IsEnabled = true;
+            ImportFiles();
+
 
         }
 
@@ -179,7 +177,13 @@ namespace MCS_Extractor
                 var files = csvHandler.GetFileList();
                 try
                 {
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        ImportButton.IsEnabled = false;
+                        ImportLabel.Content = "Importing...";
+                    });
                     ProcessFiles(files);
+
                 }
                 catch (Npgsql.PostgresException ex)
                 {
@@ -193,6 +197,14 @@ namespace MCS_Extractor
                     this.Dispatcher.Invoke(() =>
                     {
                         MessageBox.Show("Import error: " + ef.Message + Environment.NewLine + "(Check your mapping field types)");
+                    });
+                }
+                finally
+                {
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        ImportLabel.Content = "Import complete, " + ImportList.Items.Count + " files imported.";
+                        ImportButton.IsEnabled = true;
                     });
                 }
             });
