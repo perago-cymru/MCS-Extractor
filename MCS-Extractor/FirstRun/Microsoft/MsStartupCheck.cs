@@ -36,7 +36,10 @@ namespace MCS_Extractor.FirstRun.Microsoft
             }
             catch (Exception ef )
             {
-                FirstRun = false;
+                Debug.WriteLine("Failure to retrieve or configure ConnectionString!");
+                Debug.WriteLine(ef.Message);
+                Debug.Write(ef.StackTrace);
+                exists = false;
             }
            
             FirstRun = !exists;

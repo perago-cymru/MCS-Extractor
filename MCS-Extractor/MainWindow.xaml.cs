@@ -174,9 +174,10 @@ namespace MCS_Extractor
         {
             await Task.Run(() =>
             {
-                var files = csvHandler.GetFileList();
+
                 try
                 {
+                    var files = csvHandler.GetFileList();
                     this.Dispatcher.Invoke(() =>
                     {
                         ImportButton.IsEnabled = false;
